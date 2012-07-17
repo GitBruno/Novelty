@@ -10,14 +10,14 @@ Transposes outer characters in selection
 
 EXAMPLE OUTPUT:
 -------------------------------------------------------
-selection			|		replacement
+selection		|	replacement
 -------------------------------------------------------
-e’					|		’e
-hello there was		|		hello was there
-pot					|		top
-test one			|		one test
-what was that then	|		then was that what
-cte					|		etc
+e’			|	’e
+hello there was		|	hello was there
+pot			|	top
+test one		|	one test
+what was that then	|	then was that what
+cte			|	etc
 -------------------------------------------------------
 
 HINT: Control-T is unassigned as a shortcut in InDesign
