@@ -2,9 +2,15 @@
 // An InDesign javascript 
 // Bruno Herfst 2010
 
-// TODO:
-// Unlock and relock layer?
+// Thanks to Marijan Tompa & Hansjörg Römer
+
+// TODO: (You?)
+// Clean up
+// Place all pages from indesign files too
 // PLace files with bleed: If facing pages is on, make sure does not bleed on inside
+
+//add to dialog? (what about offsetting?)
+app.pdfPlacePreferences.pdfCrop = PDFCrop.cropMedia;
 
 var myDoc = app.activeDocument;
 var mySelected = 0;
@@ -32,8 +38,8 @@ if (myFiles = File.openDialog("Select files to place:", "", true)){
 function myDisplayDialog(){
 	var myTempString="PLACE "+(myFiles.length + " ")+"FILES";
 	var myDialog = app.dialogs.add({name:myTempString});
-	// function which assigns values to elements
 	
+	// function which assigns values to elements
 	// Thanks to Marijan Tompa
 	// http://indisnip.wordpress.com/2010/12/31/saving-script-data-using-json-part-2/
 	var myValues = function(setObj, defValue){
@@ -169,70 +175,94 @@ function restoreOriginalSettings(){
 }
 
 function myPlaceImages(myFiles, myFitPercent, myPercent, myFit, myFitMargin, myFitPage, myFitBleed, myFitCenterContent, myFitFrameToContent, myFitScaleDown, after_page, change_master, before_after, selectedLayer, objectStyle){
-	
 	for (var i=0; i<=myFiles.length-1; i++){
-		if (before_after == 0){
-			var myPage = myDoc.pages.add(LocationOptions.BEFORE,after_page);
-		} else {
-			var myPage = myDoc.pages.add(LocationOptions.AFTER,after_page);
-		}
-		myPage.appliedMaster = change_master;
+		var myCounter = 1;
+		var myBreak = false;
+		hack_page = after_page;
+		while(myBreak == false){
+			app.pdfPlacePreferences.pageNumber = myCounter;
+			if (before_after == 0){
+				var myPage = myDoc.pages.add(LocationOptions.BEFORE,hack_page);
+			} else {
+				var myPage = myDoc.pages.add(LocationOptions.AFTER,hack_page);
+				//I need to reverse the PDF pages if I want to place them after a certain page.
+				//Solution: update the bebore_after page
+				hack_page = myPage;
+			}
+			myPage.appliedMaster = change_master;
 
-		var myTopMargin = myPage.marginPreferences.top;  
-		var myBottomMargin = myPage.marginPreferences.bottom;
-		var bleed = myDoc.documentPreferences.documentBleedTopOffset; //(can be made more specific, good for now);
+			var myTopMargin = myPage.marginPreferences.top;  
+			var myBottomMargin = myPage.marginPreferences.bottom;
+			var bleed = myDoc.documentPreferences.documentBleedTopOffset; //(can be made more specific, good for now);
 
-		if(myPage.side == PageSideOptions.leftHand){
-				var myOutsideMargin = myPage.marginPreferences.left;
-				var myInsideMargin = myPage.marginPreferences.right;
-		}
-		else{
-			var myInsideMargin = myPage.marginPreferences.left;
-			var myOutsideMargin = myPage.marginPreferences.right;
-		}
-		if (myFitMargin){
-			var myY1 = myTopMargin;
-			var myY2 = myDoc.documentPreferences.pageHeight-myBottomMargin;
-			var myX1 = myInsideMargin;
-			var myX2 = myDoc.documentPreferences.pageWidth-myOutsideMargin;
-		}
-		if (myFitPage){
-			var myY1 = 0;
-			var myY2 = myDoc.documentPreferences.pageHeight;
-			var myX1 = 0;
-			var myX2 = myDoc.documentPreferences.pageWidth;
-		}
-		if (myFitBleed){
-			var myY1 = 0-bleed;
-			var myY2 = myDoc.documentPreferences.pageHeight + bleed;
-			var myX1 = 0-bleed;
-			var myX2 = myDoc.documentPreferences.pageWidth + bleed;
-		}
-		
-		myRectangle = myPage.rectangles.add(selectedLayer, undefined, undefined, {geometricBounds:[myY1, myX1, myY2, myX2],appliedObjectStyle:objectStyle}); 
-		//And place the file in the textframe
-		myRectangle.place(myFiles[i]);
-		
-		//Apply fitting options as specified.
-		if(myFitPercent){
-			myRectangle.allGraphics[0].horizontalScale=myPercent;
-			myRectangle.allGraphics[0].verticalScale=myPercent;
-		} else if(myFitMargin || myFitPage){
-			myRectangle.fit(FitOptions.proportionally); 
-		}
-		
-		if(myFitScaleDown){
-			if(myRectangle.allGraphics[0].verticalScale > 100 || myRectangle.allGraphics[0].horizontalScale > 100){
+			if(myPage.side == PageSideOptions.leftHand){
+					var myOutsideMargin = myPage.marginPreferences.left;
+					var myInsideMargin = myPage.marginPreferences.right;
+			}
+			else{
+				var myInsideMargin = myPage.marginPreferences.left;
+				var myOutsideMargin = myPage.marginPreferences.right;
+			}
+			if (myFitMargin){
+				var myY1 = myTopMargin;
+				var myY2 = myDoc.documentPreferences.pageHeight-myBottomMargin;
+				var myX1 = myInsideMargin;
+				var myX2 = myDoc.documentPreferences.pageWidth-myOutsideMargin;
+			}
+			if (myFitPage){
+				var myY1 = 0;
+				var myY2 = myDoc.documentPreferences.pageHeight;
+				var myX1 = 0;
+				var myX2 = myDoc.documentPreferences.pageWidth;
+			}
+			if (myFitBleed){
+				var myY1 = 0-bleed;
+				var myY2 = myDoc.documentPreferences.pageHeight + bleed;
+				var myX1 = 0-bleed;
+				var myX2 = myDoc.documentPreferences.pageWidth + bleed;
+			}
+			
+			myRectangle = myPage.rectangles.add(selectedLayer, undefined, undefined, {geometricBounds:[myY1, myX1, myY2, myX2],appliedObjectStyle:objectStyle}); 
+			//And place the file in the textframe
+			myRectangle.place(myFiles[i]);
+			
+			//Apply fitting options as specified.
+			if(myFitPercent){
 				myRectangle.allGraphics[0].horizontalScale=myPercent;
 				myRectangle.allGraphics[0].verticalScale=myPercent;
+			} else if(myFitMargin || myFitPage){
+				myRectangle.fit(FitOptions.proportionally); 
 			}
-		}
-		if(myFitCenterContent){
-			myRectangle.fit(FitOptions.centerContent); 
-		}
-		if(myFitFrameToContent){
-			myRectangle.fit(FitOptions.frameToContent); 
-		}
+			
+			if(myFitScaleDown){
+				if(myRectangle.allGraphics[0].verticalScale > 100 || myRectangle.allGraphics[0].horizontalScale > 100){
+					myRectangle.allGraphics[0].horizontalScale=myPercent;
+					myRectangle.allGraphics[0].verticalScale=myPercent;
+				}
+			}
+			if(myFitCenterContent){
+				myRectangle.fit(FitOptions.centerContent); 
+			}
+			if(myFitFrameToContent){
+				myRectangle.fit(FitOptions.frameToContent); 
+			}
+
+			// Thanks to Hansjörg Römer for the PDF functionality!
+			if(myCounter == 1){
+				try{
+					var myFirstPage = myRectangle.pdfs[0].pdfAttributes.pageNumber;
+				} catch(e) {
+					//not a PDF
+					myBreak = true;
+				}
+			} else {
+				if(myRectangle.pdfs[0].pdfAttributes.pageNumber == myFirstPage){
+					myPage.remove();
+					myBreak = true;
+				}
+			}	
+			myCounter += 1;
+		} // end while loop
 	}
 	restoreOriginalSettings();
 	alert("Done");
