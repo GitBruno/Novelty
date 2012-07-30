@@ -2,10 +2,12 @@
 	Clear_Character_Overrides.jsx
 	Bruno Herfst 2010
 	
-	version 1.1
+	version 1.2
 	
 	An InDesign JavaScript to clear all character overrides in selected or all paragraph styles	
 */
+
+#target indesign;
 
 var the_document = app.documents.item(0);
 
