@@ -1,13 +1,13 @@
 // Place_Files_On_Pages.jsx
-// An InDesign javascript 
+// An InDesign javascript
+// Version 2.1
 // Bruno Herfst 2010
 
 // Thanks to Marijan Tompa & Hansjörg Römer
 
-// TODO: (You?)
-// Clean up
-// Place all pages from indesign files too
-// PLace files with bleed: If facing pages is on, make sure does not bleed on inside
+// TODO:
+// Put more value on extensions
+// remove innerbleed tickbox
 
 //add to dialog? (what about offsetting?)
 app.pdfPlacePreferences.pdfCrop = PDFCrop.cropMedia;
@@ -174,11 +174,28 @@ function restoreOriginalSettings(){
 	myDoc.viewPreferences.rulerOrigin = oldRuler
 }
 
+function getINDPageCount(inddFile) {
+	var myInddFile = app.open(inddFile, false);
+	var pagecount = myInddFile.pages.length;
+	myInddFile.close(SaveOptions.NO);
+	return pagecount;
+}
+
 function myPlaceImages(myFiles, myFitPercent, myPercent, myFit, myFitMargin, myFitPage, myFitBleed, myFitCenterContent, myFitFrameToContent, myFitScaleDown, after_page, change_master, before_after, selectedLayer, objectStyle){
 	for (var i=0; i<=myFiles.length-1; i++){
 		var myCounter = 1;
 		var myBreak = false;
-		hack_page = after_page;
+		var hack_page = after_page;
+		var myFileName = myFiles[i].name;
+
+		//check for indesign doc
+		if(/\.indd/.test(myFileName)){
+			//placed file is an InDesign file
+			var inddpagelength = getINDPageCount(myFiles[i]);
+		} else {
+			var inddpagelength = null;
+		}
+
 		while(myBreak == false){
 			app.pdfPlacePreferences.pageNumber = myCounter;
 			if (before_after == 0){
@@ -226,42 +243,56 @@ function myPlaceImages(myFiles, myFitPercent, myPercent, myFit, myFitMargin, myF
 			//And place the file in the textframe
 			myRectangle.place(myFiles[i]);
 			
-			//Apply fitting options as specified.
-			if(myFitPercent){
-				myRectangle.allGraphics[0].horizontalScale=myPercent;
-				myRectangle.allGraphics[0].verticalScale=myPercent;
-			} else if(myFitMargin || myFitPage){
-				myRectangle.fit(FitOptions.proportionally); 
-			}
-			
-			if(myFitScaleDown){
-				if(myRectangle.allGraphics[0].verticalScale > 100 || myRectangle.allGraphics[0].horizontalScale > 100){
+			try{
+				//Apply fitting options as specified.
+				if(myFitPercent){
 					myRectangle.allGraphics[0].horizontalScale=myPercent;
 					myRectangle.allGraphics[0].verticalScale=myPercent;
+				} else if(myFitMargin || myFitPage){
+					myRectangle.fit(FitOptions.proportionally); 
 				}
-			}
-			if(myFitCenterContent){
-				myRectangle.fit(FitOptions.centerContent); 
-			}
-			if(myFitFrameToContent){
-				myRectangle.fit(FitOptions.frameToContent); 
-			}
+				
+				if(myFitScaleDown){
+					if(myRectangle.allGraphics[0].verticalScale > 100 || myRectangle.allGraphics[0].horizontalScale > 100){
+						myRectangle.allGraphics[0].horizontalScale=myPercent;
+						myRectangle.allGraphics[0].verticalScale=myPercent;
+					}
+				}
+				if(myFitCenterContent){
+					myRectangle.fit(FitOptions.centerContent); 
+				}
+				if(myFitFrameToContent){
+					myRectangle.fit(FitOptions.frameToContent); 
+				}
+				if(inddpagelength == null){
+					// Thanks to Hansjörg Römer for the PDF functionality!
+					if(myCounter == 1){
+						try{
+							var myFirstPage = myRectangle.pdfs[0].pdfAttributes.pageNumber;
+						} catch(e) {
+							//not a PDF
+							myBreak = true;
+						}
+					} else {
+						if(myRectangle.pdfs[0].pdfAttributes.pageNumber == myFirstPage){
+							myPage.remove();
+							myBreak = true;
+						}
+					}
+				} else {
+					//indesign file
+					app.importedPageAttributes.pageNumber = myCounter+1;
+					if(myCounter == inddpagelength+1){
+						myPage.remove();
+						myBreak = true;
+					}
+				}
 
-			// Thanks to Hansjörg Römer for the PDF functionality!
-			if(myCounter == 1){
-				try{
-					var myFirstPage = myRectangle.pdfs[0].pdfAttributes.pageNumber;
-				} catch(e) {
-					//not a PDF
-					myBreak = true;
-				}
-			} else {
-				if(myRectangle.pdfs[0].pdfAttributes.pageNumber == myFirstPage){
-					myPage.remove();
-					myBreak = true;
-				}
-			}	
-			myCounter += 1;
+				myCounter += 1;
+			} catch(e) {
+				//leave textfiles
+				myBreak = true;
+			}
 		} // end while loop
 	}
 	restoreOriginalSettings();
