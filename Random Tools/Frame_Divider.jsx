@@ -1,7 +1,7 @@
 ﻿////////////////////////////
 // Frame_divider.jsx
 // An InDesign JavaScript
-// Version 0.5
+// Version 1.0
 // Bruno Herfst 2012
 ////////////////////////////
 
