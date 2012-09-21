@@ -220,7 +220,7 @@ function displayDialog(myObjectList){
 		var total = myObjectList.length-1;
 		for(var t=total; t>=0; t--){
 			var cake = getDetails(myObjectList[t]);
-			var cakesize = (cake.w/100)*imgOffset;
+			var cakesize = percentOf(cake.w, imgOffset);
 
 			var VertSlices = divide(getDetails(myObjectList[t]),set,true); //cake
 			if(myObjectList[t].contentType == ContentType.GRAPHIC_TYPE){
@@ -259,7 +259,7 @@ function contentshift(cake, X, cakesize){
 	var move = step;
 	for (var slice = slices-1; slice > turnpoint; slice--){
 		var img = cake[slice].graphics[0];
-		//quicktest
+		//Shift X or shift Y
 		if(X){
 			shift(img, move, X);
 		} else { //Y
@@ -271,7 +271,7 @@ function contentshift(cake, X, cakesize){
 	//then the other
 	for (var slice = 0; slice < turnpoint; slice++){
 		var img = cake[slice].graphics[0];
-		//quicktest
+		//Shift X or shift Y
 		if(X){
 			shift(img, -move, X);
 		} else { //Y
