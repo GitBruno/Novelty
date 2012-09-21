@@ -25,7 +25,6 @@ function main(){
 					case "Rectangle":
 					case "TextFrame":
 					case "Oval":
-					case "Oval":
 					case "Polygon":
 					case "GraphicLine":
 					case "Group":
