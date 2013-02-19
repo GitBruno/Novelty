@@ -1,4 +1,4 @@
 Novelty
 =======
 
-InDesign scripts for bookdesigners
+Scripts for bookdesigners.
