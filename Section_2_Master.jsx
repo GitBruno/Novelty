@@ -1,6 +1,6 @@
 /*
 	
-	Master2section.jsx
+	Section_2_Master.jsx
 	Bruno Herfst 2010
 
 	An InDesign script to create a section with marker to selected masterpages (applied)
