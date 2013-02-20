@@ -12,7 +12,6 @@
 	TODO:
 	- Check if doc is open
 	– Make characters/words work
-	– random outlines on to give effect of press
 	– Rewrite code to run quicker?
 	– Make progressbar
 	
