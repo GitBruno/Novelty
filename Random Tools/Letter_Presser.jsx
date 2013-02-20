@@ -1,7 +1,7 @@
 /*
 
 	Letter_Presser.jsx
-	Version 0.2 (TEST)
+	Version 0.3 (TEST)
 	Experimental InDesign CS5 JavaScript
 	Bruno Herfst 2011
 
@@ -10,13 +10,13 @@
 	can also set random thin outlines for extra letter-press feel.
 	
 	TODO:
-	- Check if doc is open
+	- Safe/load presets
 	– Make characters/words work
-	– Rewrite code to run quicker?
 	– Make progressbar
 	
 	NOTE:
 	Keep values nice and small!
+	Subtlety is key.
 
 */
 
@@ -25,7 +25,13 @@
 //global varialbles
 var ps, cw, bls, sw;
 
-main();
+//Make certain that user interaction (display of dialogs, etc.) is turned on.
+app.scriptPreferences.userInteractionLevel = UserInteractionLevels.interactWithAll;	
+if (app.documents.length != 0){
+	main();
+}else{
+	alert("Open a document first before running this script.");
+}
 
 //============================================== FUNCTIONS =====================================================
 function main(){
