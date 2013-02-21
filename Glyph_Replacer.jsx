@@ -69,7 +69,10 @@ function showDialog(){
                 nullFile  : null, };
 
     if(!loadSettings()){
-        loadFont();
+        if(!loadFont()){
+            exit();
+            return;
+        }
     }
 
     if(myFont.charStr != null && myFont.charStr.length > 0){
