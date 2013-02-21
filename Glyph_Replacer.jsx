@@ -8,6 +8,7 @@
 //    This script needs a folder containing psd files (glyphs)
 //    that carry the unicode decimal number, for example: 65.psd (Capital A)
 //    You can find all decibel codepoints here: http://unicodelookup.com/
+//    Or even better if you’re on the mac: http://toolbox.brunoherfst.com/2012/unicodechecker/
 //    
 //    Every font folder needs at least the unicode replacement character:
 //    65533.psd (REPLACEMENT CHARACTER) which will be used when a character is not found in the fontfolder.
