@@ -69,89 +69,94 @@ function showDialog(){
                 nullFile  : null, };
 
     if(!loadSettings()){
-        loadFont();
+        if(!loadFont()){
+            exit();
+            return;
+        }
     }
 
-    if(myFont.charStr != null && myFont.charStr.length > 0){
+    if(loadFont()){
+        if(myFont.charStr != null && myFont.charStr.length > 0){
 
-        ////////////
-        // DIALOG //
-        ////////////
-        var column1 = 120;
-        var column2 = 60;
-        var s = 10;
+            ////////////
+            // DIALOG //
+            ////////////
+            var column1 = 120;
+            var column2 = 60;
+            var s = 10;
 
-        var myWindow = new Window ("dialog", "Glyph Replacer");
-            myWindow.alignChildren =  "left";
-            myWindow.spacing = s; //design
+            var myWindow = new Window ("dialog", "Glyph Replacer");
+                myWindow.alignChildren =  "left";
+                myWindow.spacing = s; //design
 
-        var fontGroup = myWindow.add ("group");
-            var myFontName = getFontName(myFont.folder);
-            var presetFont = fontGroup.add ("dropdownlist", undefined, [ myFontName,"Load different font..."]);
-                presetFont.selection = 0;
-                presetFont.preferredSize.width = column1+column2+s; //design
-                presetFont.onChange  = function () {
-                    if(this.selection > 0){
-                        if(!loadFont()){
-                            myWindow.close();
+            var fontGroup = myWindow.add ("group");
+                var myFontName = getFontName(myFont.folder);
+                var presetFont = fontGroup.add ("dropdownlist", undefined, [ myFontName,"Load different font..."]);
+                    presetFont.selection = 0;
+                    presetFont.preferredSize.width = column1+column2+s; //design
+                    presetFont.onChange  = function () {
+                        if(this.selection > 0){
+                            if(!loadFont()){
+                                myWindow.close();
+                            }
+                            presetFont.selection = 0;
+                            presetFont.selection.text = getFontName(myFont.folder);
                         }
-                        presetFont.selection = 0;
-                        presetFont.selection.text = getFontName(myFont.folder);
                     }
-                }
 
-        var HscaleGroup = myWindow.add ("group");
-            var ST1 = HscaleGroup.add ("statictext", undefined, "Horizontal Scale:");
-                ST1.preferredSize.width = column1; //design
-            var Hscale = HscaleGroup.add ("edittext", undefined, preset.Hscale+"%");
-                   Hscale.preferredSize.width = column2; //design
-                   Hscale.onChange = function () {
-                   this.text = NaN20(parseFloat(this.text))+"%";
-                }
+            var HscaleGroup = myWindow.add ("group");
+                var ST1 = HscaleGroup.add ("statictext", undefined, "Horizontal Scale:");
+                    ST1.preferredSize.width = column1; //design
+                var Hscale = HscaleGroup.add ("edittext", undefined, preset.Hscale+"%");
+                       Hscale.preferredSize.width = column2; //design
+                       Hscale.onChange = function () {
+                       this.text = NaN20(parseFloat(this.text))+"%";
+                    }
 
-            var VscaleGroup = myWindow.add ("group");
-            var ST2 = VscaleGroup.add ("statictext", undefined, "Vertical Scale:");
-                ST2.preferredSize.width = column1; //design
-            var Vscale = VscaleGroup.add ("edittext", undefined, preset.Vscale+"%");
-                   Vscale.preferredSize.width = column2; //design
-                   Vscale.onChange = function () {
-                   this.text = NaN20(parseFloat(this.text))+"%";
-                }
+                var VscaleGroup = myWindow.add ("group");
+                var ST2 = VscaleGroup.add ("statictext", undefined, "Vertical Scale:");
+                    ST2.preferredSize.width = column1; //design
+                var Vscale = VscaleGroup.add ("edittext", undefined, preset.Vscale+"%");
+                       Vscale.preferredSize.width = column2; //design
+                       Vscale.onChange = function () {
+                       this.text = NaN20(parseFloat(this.text))+"%";
+                    }
 
-            var multiplyGroup = myWindow.add ("group");
-            var multiplyCB = multiplyGroup.add ("checkbox", undefined, "Set glyphs to multiply");
-                multiplyCB.value = preset.multiply;
+                var multiplyGroup = myWindow.add ("group");
+                var multiplyCB = multiplyGroup.add ("checkbox", undefined, "Set glyphs to multiply");
+                    multiplyCB.value = preset.multiply;
 
-        var warnGroup = myWindow.add ("group");
-            var warnCB = warnGroup.add ("checkbox", undefined, "Warn if below:");
-                warnCB.preferredSize.width = column1; //design
-                warnCB.value = preset.warning; //design
-            var dpiET = warnGroup.add ("edittext", undefined, preset.minRes+"DPI");
-                dpiET.preferredSize.width = column2; //design
-                dpiET.onChange = function () {
-                   this.text = NaN20(parseInt(this.text))+"DPI";
-                }
+            var warnGroup = myWindow.add ("group");
+                var warnCB = warnGroup.add ("checkbox", undefined, "Warn if below:");
+                    warnCB.preferredSize.width = column1; //design
+                    warnCB.value = preset.warning; //design
+                var dpiET = warnGroup.add ("edittext", undefined, preset.minRes+"DPI");
+                    dpiET.preferredSize.width = column2; //design
+                    dpiET.onChange = function () {
+                       this.text = NaN20(parseInt(this.text))+"DPI";
+                    }
 
-           var butGroup = myWindow.add ("group");
-               var cancelBut = butGroup.add ("button", undefined, "Cancel");
-                   cancelBut.preferredSize.width = ((column1+column2)/2); //design
-               var okBut = butGroup.add ("button", undefined, "OK");
-                   okBut.preferredSize.width = ((column1+column2)/2); //design
+               var butGroup = myWindow.add ("group");
+                   var cancelBut = butGroup.add ("button", undefined, "Cancel");
+                       cancelBut.preferredSize.width = ((column1+column2)/2); //design
+                   var okBut = butGroup.add ("button", undefined, "OK");
+                       okBut.preferredSize.width = ((column1+column2)/2); //design
 
-        var myResult = myWindow.show();
+            var myResult = myWindow.show();
 
-        if(myResult == true){
-            //update settings
-            preset.Hscale   = NaN20(parseFloat(Hscale.text));
-            preset.Vscale   = NaN20(parseFloat(Vscale.text));
-            preset.minRes     = NaN20(parseInt(dpiET.text));
-            preset.multiply = multiplyCB.value;
-            preset.warning  = warnCB.value;
-            
-            safeSettings();
-            
-            //now do it!
-            main();
+            if(myResult == true){
+                //update settings
+                preset.Hscale   = NaN20(parseFloat(Hscale.text));
+                preset.Vscale   = NaN20(parseFloat(Vscale.text));
+                preset.minRes     = NaN20(parseInt(dpiET.text));
+                preset.multiply = multiplyCB.value;
+                preset.warning  = warnCB.value;
+                
+                safeSettings();
+                
+                //now do it!
+                main();
+            }
         }
     }
 }
