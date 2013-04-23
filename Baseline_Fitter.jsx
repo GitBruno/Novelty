@@ -4,7 +4,7 @@
 
 //    V1.2 BETA
 
-//    Sets baseline based on selected textleading.
+//    Sets baseline to fit page based on selected textleading.
 //    With the ability to adjusts pagemargins and styles and grid accordingly.
 
 
