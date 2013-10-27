@@ -1,7 +1,7 @@
 /*
 
 	Letter_Presser.jsx
-	Version 0.3 (TEST)
+	Version 0.4
 	Experimental InDesign CS5 JavaScript
 	Bruno Herfst 2011
 
@@ -11,7 +11,6 @@
 	
 	TODO:
 	- Safe/load presets
-	– Make characters/words work
 	– Make progressbar
 	
 	NOTE:
@@ -106,7 +105,7 @@ function main(){
 		do {
 			try {
 				// Create an object reference to the found paragraph and the next
-				wavePara(found_paragraphs[myCounter]);
+				wavePara(found_paragraphs[myCounter], cw);
 				myCounter++;
 			} catch(err) {
 				myMessage = err;
@@ -128,19 +127,28 @@ function main(){
 
 //-------------------------------------------------------------------------------------------------------------
 
-function wavePara(myPara){
+function wavePara(myPara, cw){
 	myPara.strokeAlignment = TextStrokeAlign.CENTER_ALIGNMENT;
 	var myLines = myPara.lines;
 	//for lines in paragraph
 	for (var line=0, ll=myLines.length; line < ll; line++){
 		var myLine = myPara.lines[line];
-		var cl = myLine.characters.length;
+		if(cw){
+			var cl = myLine.characters.length;
+		} else {
+			var cl = myLine.words.length;
+		}
+		
 		var mod = 0;
 		startValue = sw;
 		//for characters in lines
 		for (var character=0; character < cl; character++){
 			try{
-				var myCharacter = myLine.characters[character];
+				if(cw){
+					var myCharacter = myLine.characters[character];
+				} else {
+					var myCharacter = myLine.words[character];
+				}
 				myCharacter.strokeColor = "Black";
 				myCharacter.baselineShift = randomInRange(0,bls);
 				myCharacter.strokeWeight = randomInRange(0,sw);
