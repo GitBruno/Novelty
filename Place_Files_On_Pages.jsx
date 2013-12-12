@@ -298,3 +298,4 @@ function myPlaceImages(myFiles, myFitPercent, myPercent, myFit, myFitMargin, myF
 	restoreOriginalSettings();
 	alert("Done");
 }
+
