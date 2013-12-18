@@ -10,6 +10,8 @@
 	can also set random thin outlines for extra letter-press feel.
 	
 	TODO:
+	- Outline same colour as character
+	– Add colour variation [Percentage of colour]
 	- Safe/load presets
 	– Make progressbar
 	
@@ -156,7 +158,7 @@ function wavePara(myPara, cw){
 				//alert(r.description);
 				//This should not happen but if it does deal with it quitely
 				line-=1; // redo line
-				ll+=1; // in case the paragraph got longer
+				ll+=10; // in case the paragraph got longer
 				// if not will break anyway
 				break;
 			}
