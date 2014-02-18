@@ -1,16 +1,15 @@
 /*
 
 	Letter_Presser.jsx
-	Version 0.4
+	Version 0.5
 	Experimental InDesign CS5 JavaScript
-	Bruno Herfst 2011
+	Bruno Herfst 2011 - 2014
 
 	This script sets a randome baselineshift between two values
 	to all text found in seleced paragraph style
 	can also set random thin outlines for extra letter-press feel.
 	
 	TODO:
-	- Outline same colour as character
 	– Add colour variation [Percentage of colour]
 	- Safe/load presets
 	– Make progressbar
@@ -24,7 +23,7 @@
 #target "InDesign"
 
 //global varialbles
-var ps, cw, bls, sw;
+var ps, cw, bls, sw, stroke;
 
 //Make certain that user interaction (display of dialogs, etc.) is turned on.
 app.scriptPreferences.userInteractionLevel = UserInteractionLevels.interactWithAll;	
@@ -76,8 +75,11 @@ function main(){
 		//get dialog data
 		sw = mySwField.editValue,
 		bls = myBlsField.editValue,
-
 		cw = c.checkedState; // true: character, false: word
+		
+		if(sw > 0){
+				 stroke = true;
+		} else { stroke = false }
 		
 		if (find_paragraph.selectedIndex == 0) {
 			ps = false;
@@ -151,9 +153,15 @@ function wavePara(myPara, cw){
 				} else {
 					var myCharacter = myLine.words[character];
 				}
-				myCharacter.strokeColor = "Black";
+				if(stroke){
+					myCharacter.strokeColor = myCharacter.fillColor;
+					myCharacter.strokeWeight = randomInRange(0,sw);
+				} else {
+					myCharacter.strokeColor = "None";
+					myCharacter.strokeWeight = 0;
+				}
+				
 				myCharacter.baselineShift = randomInRange(0,bls);
-				myCharacter.strokeWeight = randomInRange(0,sw);
 			}catch(r){
 				//alert(r.description);
 				//This should not happen but if it does deal with it quitely

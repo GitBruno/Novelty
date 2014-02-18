@@ -44,8 +44,7 @@ function main(){
 function straighten(myImg){
 	for(var i=0;i<app.selection.length;i++){
 		var myImg = app.selection[i];
-					
-		//Find out what the rotationangle is
+		//Find out what the rotation angle is
 		var myRect = myImg.parent,
 			rectRot = myRect.rotationAngle,
 			imgBounds = myImg.geometricBounds;
