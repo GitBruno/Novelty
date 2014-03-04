@@ -14,6 +14,9 @@
 		
 ////////////////////////////////////////////////////////////////*/
 
+#target indesign;
+
+
 try{
 	var the_document = app.documents.item(0);
 	// Create a list of master pages

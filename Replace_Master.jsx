@@ -5,6 +5,8 @@
 	An InDesign script to find/replace selected Master Pages	
 */
 
+#target indesign;
+
 var the_document = app.documents.item(0);
 
 // Create a list of master pages

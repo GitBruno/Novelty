@@ -4,6 +4,9 @@
 		Bruno Herfst 2011
 */
 
+#target indesign;
+
+
 try {
 	var myDoc = app.activeDocument;
 	var list_of_All_paragraph_styles = myDoc.paragraphStyles.everyItem().name;

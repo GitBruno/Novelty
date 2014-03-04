@@ -8,6 +8,9 @@
 //add search for style?
 //calculate auto?
 
+#target indesign;
+
+
 main();
 
 //global variables

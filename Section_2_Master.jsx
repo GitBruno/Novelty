@@ -8,6 +8,8 @@
 	
 */
 
+#target indesign;
+
 var myDoc = app.documents.item(0);
 
 // Create a list of master pages

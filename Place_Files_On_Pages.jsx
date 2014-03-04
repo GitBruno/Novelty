@@ -9,6 +9,9 @@
 // Put more value on extensions
 // remove innerbleed tickbox
 
+#target indesign;
+
+
 //add to dialog? (what about offsetting?)
 app.pdfPlacePreferences.pdfCrop = PDFCrop.cropMedia;
 

@@ -18,6 +18,8 @@ He said, ‘Didn’t you like “That ’70s Show” back then?’
 
 */
 
+#target indesign;
+
 main();
 
 function main(){

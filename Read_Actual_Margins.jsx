@@ -8,6 +8,10 @@
 */
 
 //-------------------- V A R I A B L E S --------------------------//
+
+#target indesign;
+
+
 var myTopMargin, myBottomMargin, myInsideMargin, myOutsideMargin;
 var myMargins = [];
 

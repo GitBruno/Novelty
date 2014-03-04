@@ -10,6 +10,9 @@
 
 //----------------------------------- S H O W - D I A L O G
 
+#target indesign;
+
+
 //Global variables
 var myDoc, myPageHeight, myPageWidth, myOldXUnits, myOldYUnits;
 

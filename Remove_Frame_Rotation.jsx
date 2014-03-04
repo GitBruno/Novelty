@@ -9,7 +9,11 @@ Moves the rotation of frames to it’s contents.
 This way you end up with rotated content in stead of rotated frames.
 
 */
+
+#target indesign;
+
 main();
+
 function main(){
 	//Make certain that user interaction (display of dialogs, etc.) is turned on.
 	app.scriptPreferences.userInteractionLevel = UserInteractionLevels.interactWithAll;
