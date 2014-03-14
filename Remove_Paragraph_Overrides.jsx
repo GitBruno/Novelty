@@ -1,5 +1,5 @@
 /*	
-	Clear_Character_Overrides.jsx
+	Remove_Character_Overrides.jsx
 	Bruno Herfst 2010
 	
 	version 1.2
