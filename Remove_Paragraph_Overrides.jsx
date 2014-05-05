@@ -2,7 +2,7 @@
 	Remove_Character_Overrides.jsx
 	Bruno Herfst 2010
 	
-	version 1.2
+	version 1.3
 	
 	An InDesign JavaScript to clear all character overrides in selected or all paragraph styles	
 */
@@ -13,7 +13,9 @@ var the_document = app.documents.item(0);
 
 // Create a list of paragraph styles
 var list_of_All_paragraph_styles = the_document.paragraphStyles.everyItem().name;
-list_of_All_paragraph_styles.push("All paragraph styles");
+list_of_All_paragraph_styles.sort();
+
+list_of_All_paragraph_styles.unshift("All paragraph styles");
 
 // Make the dialog box for selecting the paragraph styles
 var the_dialog = app.dialogs.add({name:"Remove paragraph overrides"});
@@ -22,7 +24,7 @@ with(the_dialog.dialogColumns.add()){
 		staticTexts.add({staticLabel:"Paragraph style:"});
 	}
 	with(borderPanels.add()){
-		var selected_paragraph = dropdowns.add({stringList:list_of_All_paragraph_styles, selectedIndex:list_of_All_paragraph_styles.length-1});
+		var selected_paragraph = dropdowns.add({stringList:list_of_All_paragraph_styles, selectedIndex:0});
 	}
 }
 
@@ -42,8 +44,8 @@ if(mdlg == true){
 	app.findGrepPreferences.findWhat = "";
 	app.changeGrepPreferences.changeTo = "";
 	
-	if (selected_paragraph.selectedIndex == list_of_All_paragraph_styles.length-1){
-		for (i=0; i<list_of_All_paragraph_styles.length-1; i++){
+	if (selected_paragraph.selectedIndex == 0){
+		for (i=1; i<list_of_All_paragraph_styles.length; i++){
 			// Define paragraph style
 			var find_paragraph = the_document.paragraphStyles.item(i);
 			app.findGrepPreferences.appliedParagraphStyle = find_paragraph;
@@ -51,8 +53,9 @@ if(mdlg == true){
 			the_document.changeGrep();
 		}
 	} else {
+		var StyleString = selected_paragraph.stringList[selected_paragraph.selectedIndex];
 		// Define paragraph style
-		var find_paragraph = the_document.paragraphStyles.item(selected_paragraph.selectedIndex);
+		var find_paragraph = the_document.paragraphStyles.item(StyleString);
 		app.findGrepPreferences.appliedParagraphStyle = find_paragraph;
 		app.changeGrepPreferences.appliedParagraphStyle = find_paragraph;
 		the_document.changeGrep();
