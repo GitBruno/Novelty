@@ -7,7 +7,7 @@
 
 // TODO:
 // Put more value on extensions
-// remove innerbleed tickbox
+// Use existing pages
 
 #target indesign;
 
@@ -41,7 +41,7 @@ if (myFiles = File.openDialog("Select files to place:", "", true)){
 function myDisplayDialog(){
 	var myTempString="PLACE "+(myFiles.length + " ")+"FILES";
 	var myDialog = app.dialogs.add({name:myTempString});
-	
+
 	// function which assigns values to elements
 	// Thanks to Marijan Tompa
 	// http://indisnip.wordpress.com/2010/12/31/saving-script-data-using-json-part-2/
@@ -109,9 +109,9 @@ function myDisplayDialog(){
 		var myFitCenterContentCheckbox = checkboxControls.add({staticLabel:"Center Content", checkedState:myValues("myFitCenterContentCheckbox", false)});
 		var myFitFrameToContentCheckbox = checkboxControls.add({staticLabel:"Frame to Content", checkedState:myValues("myFitFrameToContentCheckbox", false)});
 		var myFitScaleDownCheckbox = checkboxControls.add({staticLabel:"Only Scale Down", checkedState:myValues("myFitScaleDownCheckbox", false)});
-		
-		var myResult = myDialog.show(); 
-        
+
+		var myResult = myDialog.show();
+
         if(myResult == true){
         	var change_master = myDoc.masterSpreads.item(myChange_master.selectedIndex);
         	var objectStyle = myDoc.objectStyles.item(myObjectStyle.selectedIndex);
@@ -131,7 +131,7 @@ function myDisplayDialog(){
 				var selectedLayer = myDoc.layers[mySelectedLayer.selectedIndex];
 			}
 			var before_after = myBefore_after.selectedIndex;
-			
+
 			// save settings to doc
 			var mySettings = {}; // new JSON
 			// adds values from dialog to JSON
@@ -147,10 +147,10 @@ function myDisplayDialog(){
 
 		    // saves JSON which is converted to string to activeDocument label
 		    app.activeDocument.insertLabel("PFOP-Settings", mySettings.toSource());
-			
+
 			// we have to reverse the order when we are adding before or after a static page number
 			myFiles.reverse();
-			
+
 			myDialog.destroy();
 
 			myPlaceImages(myFiles, myFitPercent, myPercent, myFit, myFitMargin, myFitPage, myFitBleed, myFitCenterContent, myFitFrameToContent, myFitScaleDown, after_page, change_master, before_after, selectedLayer, objectStyle);
@@ -211,7 +211,7 @@ function myPlaceImages(myFiles, myFitPercent, myPercent, myFit, myFitMargin, myF
 			}
 			myPage.appliedMaster = change_master;
 
-			var myTopMargin = myPage.marginPreferences.top;  
+			var myTopMargin = myPage.marginPreferences.top;
 			var myBottomMargin = myPage.marginPreferences.bottom;
 			var bleed = myDoc.documentPreferences.documentBleedTopOffset; //(can be made more specific, good for now);
 
@@ -241,20 +241,20 @@ function myPlaceImages(myFiles, myFitPercent, myPercent, myFit, myFitMargin, myF
 				var myX1 = 0-bleed;
 				var myX2 = myDoc.documentPreferences.pageWidth + bleed;
 			}
-			
-			myRectangle = myPage.rectangles.add(selectedLayer, undefined, undefined, {geometricBounds:[myY1, myX1, myY2, myX2],appliedObjectStyle:objectStyle}); 
+
+			myRectangle = myPage.rectangles.add(selectedLayer, undefined, undefined, {geometricBounds:[myY1, myX1, myY2, myX2],appliedObjectStyle:objectStyle});
 			//And place the file in the textframe
 			myRectangle.place(myFiles[i]);
-			
+
 			try{
 				//Apply fitting options as specified.
 				if(myFitPercent){
 					myRectangle.allGraphics[0].horizontalScale=myPercent;
 					myRectangle.allGraphics[0].verticalScale=myPercent;
 				} else if(myFitMargin || myFitPage){
-					myRectangle.fit(FitOptions.proportionally); 
+					myRectangle.fit(FitOptions.proportionally);
 				}
-				
+
 				if(myFitScaleDown){
 					if(myRectangle.allGraphics[0].verticalScale > 100 || myRectangle.allGraphics[0].horizontalScale > 100){
 						myRectangle.allGraphics[0].horizontalScale=myPercent;
@@ -262,10 +262,10 @@ function myPlaceImages(myFiles, myFitPercent, myPercent, myFit, myFitMargin, myF
 					}
 				}
 				if(myFitCenterContent){
-					myRectangle.fit(FitOptions.centerContent); 
+					myRectangle.fit(FitOptions.centerContent);
 				}
 				if(myFitFrameToContent){
-					myRectangle.fit(FitOptions.frameToContent); 
+					myRectangle.fit(FitOptions.frameToContent);
 				}
 				if(inddpagelength == null){
 					// Thanks to Hansjörg Römer for the PDF functionality!

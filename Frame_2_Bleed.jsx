@@ -4,6 +4,7 @@
 
 // WISHLIST
 // + script to work with polygons
+// + Script need to take multiple page spreads into account
 
 #target indesign
 main();
@@ -50,14 +51,14 @@ function straightenFrames(){
 			var rectRot = myRect.rotationAngle,
 				imgRot = myImg.rotationAngle,
 				imgBounds = myImg.geometricBounds;
-			
+
 			//Create the transformation matrix
 			var rectTransformationMatrix = app.transformationMatrices.add({counterclockwiseRotationAngle:-rectRot});
 				imgTransformationMatrix = app.transformationMatrices.add({counterclockwiseRotationAngle:rectRot+imgRot});
 			// Rotate around its center point
 			myRect.transform(CoordinateSpaces.pasteboardCoordinates, AnchorPoint.centerAnchor, rectTransformationMatrix);
 			myImg.transform(CoordinateSpaces.pasteboardCoordinates, AnchorPoint.centerAnchor, imgTransformationMatrix);
-			
+
 			if(imgRot >= 180) {
 				var newAngle = myImg.rotationAngle -= 180;
 			}
@@ -77,7 +78,7 @@ function fit(){
 		var rectBounds = myRect.geometricBounds,
 			pageBounds = myPage.bounds, //in the format [y1, x1, y2, x2], top-left and bottom-right
 			pageWidth = myPage.bounds[3]-myPage.bounds[1];
-		
+
 		//check bleed (can be made more specific, good for now)
 		var bleed = myDoc.documentPreferences.documentBleedTopOffset;
 
@@ -88,9 +89,9 @@ function fit(){
 		} else {
 			//page
 			if(myPage.side == PageSideOptions.RIGHT_HAND){
-				var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1],pageBounds[2]+bleed,pageBounds[3]+bleed);	
+				var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1],pageBounds[2]+bleed,pageBounds[3]+bleed);
 			} else if(myPage.side == PageSideOptions.LEFT_HAND){
-				var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1]-bleed,pageBounds[2]+bleed,pageBounds[3]);	
+				var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1]-bleed,pageBounds[2]+bleed,pageBounds[3]);
 			} else { // PageSideOptions.SINGLE_SIDED
 				var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1]-bleed,pageBounds[2]+bleed,pageBounds[3]+bleed);
 			}
