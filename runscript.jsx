@@ -3,7 +3,7 @@
 
 
 // Look for scripts in subfolders added by Bruno Herfst 2013
-
+// Recommended shortcut: F4
 
 #target indesign;
 
@@ -11,7 +11,7 @@ try {app.doScript (get_script ())}
     catch (e) {alert (e.message + "\r(line " + e.line + ")")};
 
 function get_script ()
-    {       
+    {
     var script_dir = find_script_dir();
     var fstring = script_dir + "/runscript-last.txt";
     var history = get_history (fstring);
@@ -42,7 +42,7 @@ function get_script ()
             var list = main.add ("listbox", undefined, droplist);
                 list.preferredSize = [300, 280];
                 list.selection = 0;
-                
+
             var options = main.add ("group");
                 options.alignment = "left";
                 var filter_check = options.add ("checkbox", undefined, "\u00A0Filter list\u00A0");
@@ -54,9 +54,9 @@ function get_script ()
             buttons.alignment = "right";
             ok_button = buttons.add ("button", undefined, "OK", {name: "OK"});
             buttons.add ("button", undefined, "Cancel", {name: "cancel"});
-            
+
         entry.onChanging = FilterList;
-        
+
         function FilterList ()
             {
             filter = entry.text;
@@ -108,7 +108,7 @@ function get_script ()
                 FilterList();
                 }
             }
-        
+
         if (w.show () == 2)
             {
             w.close ();
@@ -119,7 +119,7 @@ function get_script ()
             var script = list.selection.text;
             if (!keep_filter.value) filter = "";
             store_history (fstring, script, history, filter_check.value, keep_filter.value, filter);
-            
+
             for(var i = 0; i < scripts.name.length; i++) {
 			  if(scripts.name[i] == script) {
 				return scripts.path[i];
@@ -127,17 +127,17 @@ function get_script ()
 			}
             return null;
             }
-    } // function drop_typeahead 
+    } // function drop_typeahead
 
 
 function get_scripts (script_dir) {
     var files = new Object();
     files.path = new Array();
     files.name = new Array();
-    
+
     var fileList = getAllFiles(script_dir),
 	i, file;
-    
+
     for (i = 0; i < fileList.length; i++) {
     	file = fileList[i];
     	if (file instanceof File && file.name.match(/\.jsx?$/i)) {
@@ -153,7 +153,7 @@ function get_scripts (script_dir) {
 function getAllFiles(thisDir){
 	var fileList = Folder (thisDir).getFiles(),
 	i, file;
-    
+
     for (i = 0; i < fileList.length; i++) {
     	file = fileList[i];
     	if (file instanceof Folder) {
