@@ -1,5 +1,5 @@
 // Frame_2_Bleed.jsx
-// An InDesign JavaScript by Bruno Herfst 2012
+// An InDesign CS5+ JavaScript by Bruno Herfst 2012
 // Version 1.1
 
 // WISHLIST
@@ -31,8 +31,7 @@ function main(){
 				}
 			}
 			straightenFrames();
-			fit()
-
+			fit();
 		}else{
 			alert("Please select a frame.");
 		}
@@ -71,32 +70,34 @@ function straightenFrames(){
 function fit(){
 	var oldRuler = myDoc.viewPreferences.rulerOrigin;
 	myDoc.viewPreferences.rulerOrigin = RulerOrigin.spreadOrigin;
-	for(var i=0;i<app.selection.length;i++){
-		var myRect = app.selection[i];
-		var myPage = myRect.parentPage;
-		//check bounds
-		var rectBounds = myRect.geometricBounds,
-			pageBounds = myPage.bounds, //in the format [y1, x1, y2, x2], top-left and bottom-right
-			pageWidth = myPage.bounds[3]-myPage.bounds[1];
+	try {
+        for(var i=0;i<app.selection.length;i++){
+            var myRect = app.selection[i];
+            var myPage = myRect.parentPage;
+            //check bounds
+            var rectBounds = myRect.geometricBounds,
+                pageBounds = myPage.bounds, //in the format [y1, x1, y2, x2], top-left and bottom-right
+                pageWidth = myPage.bounds[3]-myPage.bounds[1];
+        
+            //check bleed (can be made more specific, good for now)
+            var bleed = myDoc.documentPreferences.documentBleedTopOffset;
 
-		//check bleed (can be made more specific, good for now)
-		var bleed = myDoc.documentPreferences.documentBleedTopOffset;
-
-		//check if image meant to be a spread
-		if(rectBounds[1] < pageWidth*0.25 && rectBounds[3] > pageWidth*1.75){
-			//spread
-			var bleedBound = new Array(-bleed,-bleed,pageBounds[2]+bleed,pageWidth*2+bleed);
-		} else {
-			//page
-			if(myPage.side == PageSideOptions.RIGHT_HAND){
-				var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1],pageBounds[2]+bleed,pageBounds[3]+bleed);
-			} else if(myPage.side == PageSideOptions.LEFT_HAND){
-				var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1]-bleed,pageBounds[2]+bleed,pageBounds[3]);
-			} else { // PageSideOptions.SINGLE_SIDED
-				var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1]-bleed,pageBounds[2]+bleed,pageBounds[3]+bleed);
-			}
-		}
-		myRect.geometricBounds = bleedBound;
-		myDoc.viewPreferences.rulerOrigin = oldRuler;
-	}
+            //check if image meant to be a spread
+            if(rectBounds[1] < pageWidth*0.25 && rectBounds[3] > pageWidth*1.75){
+                //spread
+                var bleedBound = new Array(-bleed,-bleed,pageBounds[2]+bleed,pageWidth*2+bleed);
+            } else {
+                //page
+                if(myPage.side == PageSideOptions.RIGHT_HAND){
+                    var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1],pageBounds[2]+bleed,pageBounds[3]+bleed);	
+                } else if(myPage.side == PageSideOptions.LEFT_HAND){
+                    var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1]-bleed,pageBounds[2]+bleed,pageBounds[3]);	
+                } else { // PageSideOptions.SINGLE_SIDED
+                    var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1]-bleed,pageBounds[2]+bleed,pageBounds[3]+bleed);
+                }
+            }
+            myRect.geometricBounds = bleedBound;
+        }
+    }catch(e){ alert(e.description)}
+	myDoc.viewPreferences.rulerOrigin = oldRuler;
 }
