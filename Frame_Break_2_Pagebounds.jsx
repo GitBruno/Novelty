@@ -2,7 +2,7 @@
 
 --------------------------------------------
 
-	Break_Frames.jsx
+	Frame_Break_2_Pagebounds.jsx
 	An InDesign CS5/6 Javascript
 	Version 1
 
@@ -50,27 +50,31 @@ function breakSpreadsOn(myCover){
 	//For all spreads
 	var spreadsLen = myCover.spreads.length;
 	for (i=spreadsLen-1; i>=0; i--){
-		var mySpreadItems = myCover.spreads[i].rectangles;
+		var mySpreadRectangles  = myCover.spreads[i].rectangles;
+		var mySpreadOvals       = myCover.spreads[i].ovals;
+		var mySpreadPolygons    = myCover.spreads[i].polygons;
+		
 		var mySpreadPages = myCover.spreads[i].pages;
-
-		var pagesLen = mySpreadPages.length;
-		var myPages = new Array();
+		var pagesLen      = mySpreadPages.length;
+		var myPages       = new Array();
+		
 		for (var page = pagesLen-1; page>=0; page--){
 			// Get page bounds including bleed
 			if(page == 0){ // first
-				var myFrameBounds	= getBounds(mySpreadPages[page],3);
+				var myFrameBounds	= getPageBounds(mySpreadPages[page],3);
 			} else if (page == pagesLen-1){
-				var myFrameBounds	= getBounds(mySpreadPages[page],1);
+				var myFrameBounds	= getPageBounds(mySpreadPages[page],1);
 			} else {
-				var myFrameBounds	= getBounds(mySpreadPages[page],2);
+				var myFrameBounds	= getPageBounds(mySpreadPages[page],2);
 			}
 			myPages.push({page: mySpreadPages[page], bounds:myFrameBounds});
 		}
 		if(myPages.length > 1) {
-			breakFramesTo(myPages,mySpreadItems);
+            breakFramesTo(myPages,mySpreadRectangles);
+			breakFramesTo(myPages,mySpreadOvals);
+			breakFramesTo(myPages,mySpreadPolygons);
 		}
 	}
-
 	myCover.viewPreferences.rulerOrigin = ruleror;
 	return true;
 }
@@ -78,19 +82,17 @@ function breakSpreadsOn(myCover){
 function breakFramesTo(myPages,mySpreadItems){
 	for ( i = mySpreadItems.length-1; i >= 0; i-- ) {
 		var spreadItem = mySpreadItems[i];
-
 		var myLayer = spreadItem.itemLayer;
 		//make sure layer is unlocked
 		var myLayerLock = myLayer.locked;
 		if(myLayerLock){
 			myLayer.locked = false;
 		}
-
 		// Check item agains every page
 		var pagesLen = myPages.length;
-		for (var i = pagesLen-1; i >= 0; i--){
+		for (var j = pagesLen-1; j >= 0; j--){
 			var myDupItem = spreadItem.duplicate();
-			var rect = myPages[i].page.rectangles.add(myLayer,{geometricBounds:myPages[i].bounds, fillColor:"None", strokeColor:"None"});
+			var rect = myPages[j].page.rectangles.add(myLayer,{geometricBounds:myPages[j].bounds, fillColor:"None", strokeColor:"None"});
 				rect.sendToBack();
 			try {
 				rect.intersectPath(myDupItem);
@@ -109,7 +111,7 @@ function breakFramesTo(myPages,mySpreadItems){
 	}
 }
 
-function getBounds(myPage,selector){
+function getPageBounds(myPage,selector){
 	var myBleedBounds = myPage.bounds; //[y1, x1, y2, x2]
 
 	// Add top and bottom bleed
