@@ -2,9 +2,9 @@
 
 --------------------------------------------
 
-	Frame_Break_2_Pagebounds.jsx
+	Break_Frame_2_Pagebounds.jsx
 	An InDesign CS5/6 Javascript
-	Version 1
+	Version 1.1
 
 	Bruno Herfst 2013-2015
 	mail@brunoherfst.com
@@ -23,7 +23,6 @@
 //////////////
 doTextFrames = false;
 
-
 //Make certain that user interaction (display of dialogs, etc.) is turned on.
 app.scriptPreferences.userInteractionLevel = UserInteractionLevels.interactWithAll;
 
@@ -36,45 +35,50 @@ if (app.documents.length != 0) {
             Left   : myCover.documentPreferences.documentBleedInsideOrLeftOffset,
             Right  : myCover.documentPreferences.documentBleedOutsideOrRightOffset
         };
-    if(breakSpreadsOn(myCover)) {
+    if(breakCover(myCover)) {
     	alert("Done!");
     }
 } else {
 	alert("Can’t find any open documents.");
 }
 
-function breakSpreadsOn(myCover){
-	var ruleror = myCover.viewPreferences.rulerOrigin;
-	myCover.viewPreferences.rulerOrigin = RulerOrigin.SPREAD_ORIGIN;
-
+function breakCover(myCover){
 	//For all spreads
 	var spreadsLen = myCover.spreads.length;
-	for (i=spreadsLen-1; i>=0; i--){
-		var mySpreadRectangles  = myCover.spreads[i].rectangles;
-		var mySpreadOvals       = myCover.spreads[i].ovals;
-		var mySpreadPolygons    = myCover.spreads[i].polygons;
-		
-		var mySpreadPages = myCover.spreads[i].pages;
-		var pagesLen      = mySpreadPages.length;
-		var myPages       = new Array();
-		
-		for (var page = pagesLen-1; page>=0; page--){
-			// Get page bounds including bleed
-			if(page == 0){ // first
-				var myFrameBounds	= getPageBounds(mySpreadPages[page],3);
-			} else if (page == pagesLen-1){
-				var myFrameBounds	= getPageBounds(mySpreadPages[page],1);
-			} else {
-				var myFrameBounds	= getPageBounds(mySpreadPages[page],2);
-			}
-			myPages.push({page: mySpreadPages[page], bounds:myFrameBounds});
-		}
-		if(myPages.length > 1) {
-            breakFramesTo(myPages,mySpreadRectangles);
-			breakFramesTo(myPages,mySpreadOvals);
-			breakFramesTo(myPages,mySpreadPolygons);
-		}
+	for (var i=spreadsLen-1; i>=0; i--){
+		  breakSpread(myCover, myCover.spreads[i]);
 	}
+	return true;
+}
+
+function breakSpread(myCover, mySpread){
+    var ruleror = myCover.viewPreferences.rulerOrigin;
+	myCover.viewPreferences.rulerOrigin = RulerOrigin.SPREAD_ORIGIN;
+
+    var mySpreadRectangles  = mySpread.rectangles;
+	var mySpreadOvals       = mySpread.ovals;
+	var mySpreadPolygons    = mySpread.polygons;
+	
+	var mySpreadPages = mySpread.pages;
+	var pagesLen      = mySpreadPages.length;
+	var myPages       = new Array();
+	
+	for (var page = pagesLen-1; page>=0; page--){
+		// Get page bounds including bleed
+		if(page == 0){ // first
+			var myFrameBounds	= getPageBounds(mySpreadPages[page],3);
+		} else if (page == pagesLen-1){
+			var myFrameBounds	= getPageBounds(mySpreadPages[page],1);
+		} else {
+			var myFrameBounds	= getPageBounds(mySpreadPages[page],2);
+		}
+		myPages.push({page: mySpreadPages[page], bounds:myFrameBounds});
+	}
+	if(myPages.length > 1) {
+        breakFramesTo(myPages,mySpreadRectangles);
+		breakFramesTo(myPages,mySpreadOvals);
+		breakFramesTo(myPages,mySpreadPolygons);
+	} 
 	myCover.viewPreferences.rulerOrigin = ruleror;
 	return true;
 }
