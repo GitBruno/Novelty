@@ -185,6 +185,9 @@ function getINDPageCount(inddFile) {
 }
 
 function myPlaceImages(myFiles, myFitPercent, myPercent, myFit, myFitMargin, myFitPage, myFitBleed, myFitCenterContent, myFitFrameToContent, myFitScaleDown, after_page, change_master, before_after, selectedLayer, objectStyle){
+	var filesPlaced = 0;
+	var filecount = myFiles.length;
+	
 	for (var i=0; i<=myFiles.length-1; i++){
 		var myCounter = 1;
 		var myBreak = false;
@@ -195,51 +198,66 @@ function myPlaceImages(myFiles, myFitPercent, myPercent, myFit, myFitMargin, myF
 		if(/\.indd/.test(myFileName)){
 			//placed file is an InDesign file
 			var inddpagelength = getINDPageCount(myFiles[i]);
+			filecount += inddpagelength;
 		} else {
 			var inddpagelength = null;
 		}
 
 		while(myBreak == false){
 			app.pdfPlacePreferences.pageNumber = myCounter;
+			
 			if (before_after == 0){
 				var myPage = myDoc.pages.add(LocationOptions.BEFORE,hack_page);
 			} else {
 				var myPage = myDoc.pages.add(LocationOptions.AFTER,hack_page);
 				//I need to reverse the PDF pages if I want to place them after a certain page.
-				//Solution: update the bebore_after page
+				//Solution: update the before_after page
 				hack_page = myPage;
 			}
+			filesPlaced++;
+			
 			myPage.appliedMaster = change_master;
 
 			var myTopMargin = myPage.marginPreferences.top;
 			var myBottomMargin = myPage.marginPreferences.bottom;
 			var bleed = myDoc.documentPreferences.documentBleedTopOffset; //(can be made more specific, good for now);
-
-			if(myPage.side == PageSideOptions.leftHand){
-					var myOutsideMargin = myPage.marginPreferences.left;
+            
+            if( ((myPage.side == PageSideOptions.leftHand) && (filecount %2 == 0)) || ((myPage.side == PageSideOptions.rightHand) && (filecount %2 == 1)) ){
+                var startPage = 0;
+            } else {
+                var startPage = 1;
+            }
+            
+			if(filesPlaced % 2 == startPage){
+			        var myOutsideMargin = myPage.marginPreferences.left;
 					var myInsideMargin = myPage.marginPreferences.right;
+					var bleedLeft  = bleed;
+					var bleedRight = 0;
 			}
 			else{
-				var myInsideMargin = myPage.marginPreferences.left;
 				var myOutsideMargin = myPage.marginPreferences.right;
+				var myInsideMargin  = myPage.marginPreferences.left;
+				var bleedLeft  = 0;
+				var bleedRight = bleed;
 			}
+			
 			if (myFitMargin){
-				var myY1 = myTopMargin;
-				var myY2 = myDoc.documentPreferences.pageHeight-myBottomMargin;
 				var myX1 = myInsideMargin;
-				var myX2 = myDoc.documentPreferences.pageWidth-myOutsideMargin;
+				var myY1 = myTopMargin;
+				var myX2 = myDoc.documentPreferences.pageWidth  - myOutsideMargin;
+				var myY2 = myDoc.documentPreferences.pageHeight - myBottomMargin;
 			}
 			if (myFitPage){
-				var myY1 = 0;
-				var myY2 = myDoc.documentPreferences.pageHeight;
 				var myX1 = 0;
+				var myY1 = 0;
 				var myX2 = myDoc.documentPreferences.pageWidth;
+				var myY2 = myDoc.documentPreferences.pageHeight;
 			}
 			if (myFitBleed){
+			    var myX1 = 0-bleedLeft;
 				var myY1 = 0-bleed;
+				var myX2 = myDoc.documentPreferences.pageWidth  + bleedRight;
 				var myY2 = myDoc.documentPreferences.pageHeight + bleed;
-				var myX1 = 0-bleed;
-				var myX2 = myDoc.documentPreferences.pageWidth + bleed;
 			}
 
 			myRectangle = myPage.rectangles.add(selectedLayer, undefined, undefined, {geometricBounds:[myY1, myX1, myY2, myX2],appliedObjectStyle:objectStyle});
@@ -299,6 +317,6 @@ function myPlaceImages(myFiles, myFitPercent, myPercent, myFit, myFitMargin, myF
 		} // end while loop
 	}
 	restoreOriginalSettings();
-	alert("Done");
+	alert("Done\n" + filesPlaced + " pages inserted.");
 }
 
