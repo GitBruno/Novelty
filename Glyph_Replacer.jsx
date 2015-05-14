@@ -14,6 +14,8 @@
 //    65533.psd (REPLACEMENT CHARACTER) which will be used when a character is not found in the fontfolder.
 //
 //    Wishlist:
+//    Add baseline offset
+//    Place glyphs at point size of text or measure unit
 //    Add CSV kern table//    Let the user start from insertion point too
 //    Add alternates with PS layers
 //
@@ -26,8 +28,8 @@ var preset = {  minRes    : 300,      //int,      dpi
                 warning   : true,     //Boolean,  set to false to not get warnings about resolution
                 Hscale    : 100,      //float,    Horizontal scale (percent 100% is no scaling)
                 Vscale    : 100,      //float,    Vertical scale (percent 100% is no scaling)
-                multiply  : true };   //Boolean,  Use the width of the selected frame as max width, creating linebreaks.
-
+                multiply  : true,     //Boolean,  Use the width of the selected frame as max width, creating linebreaks
+                shift     : 0 };      //Int,      The baseline shift value in points
 
 //Make certain that user interaction (display of dialogs, etc.) is turned on.
 app.scriptPreferences.userInteractionLevel = UserInteractionLevels.interactWithAll;    
@@ -36,17 +38,27 @@ if (app.documents.length != 0){
     var myDoc = app.activeDocument, myFont = undefined, tf = undefined;
     var myDocXMP = myDoc.metadataPreferences;
     var destNamespace = "http://brunoherfst.com/";
-    var destContName = "Settings";
+    var destContName = "Glyph_Replacer_Settings";
 
     if (app.selection.length == 1){
+        alert(app.selection[0].constructor.name);
         switch (app.selection[0].constructor.name){
             //add case for insertion point
             case "TextFrame":
                 tf = app.selection[0];
                 showDialog();
                 break;
+            case "Text":
+            case "Character":
+            case "Word":
+                tf = app.selection[0].textFrames.add();
+                tf.contents = app.selection[0].contents;
+                tf.fit(FitOptions.FRAME_TO_CONTENT);
+                app.selection[0].contents = "";
+                showDialog();
+                break;
             default:
-                alert("Select a textframe and try again.");
+                alert("Select some text or a textframe and try again.");
                 break;
         }
     } else {
@@ -148,7 +160,7 @@ function showDialog(){
                 //update settings
                 preset.Hscale   = NaN20(parseFloat(Hscale.text));
                 preset.Vscale   = NaN20(parseFloat(Vscale.text));
-                preset.minRes     = NaN20(parseInt(dpiET.text));
+                preset.minRes   = NaN20(parseInt(dpiET.text));
                 preset.multiply = multiplyCB.value;
                 preset.warning  = warnCB.value;
                 

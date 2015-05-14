@@ -13,7 +13,6 @@ EXAMPLE OUTPUT:
 selection          |    replacement
 -------------------------------------------------------
 e’                 |    ’e
-hello there was    |    hello was there
 pot                |    top
 test one           |    one test
 what was that then |    then was that what
