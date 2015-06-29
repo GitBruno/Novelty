@@ -44,12 +44,20 @@ function straightenFrames(){
 	try {
 		for(var i=0;i<app.selection.length;i++){
 			var myRect = app.selection[i];
-			var myImg = myRect.images[0];
+			try{
+				var myImg = myRect.images[0];
+			} catch(_) {
+				continue;
+			}
 
 			//Find out what the rotationangle is
 			var rectRot = myRect.rotationAngle,
 				imgRot = myImg.rotationAngle,
 				imgBounds = myImg.geometricBounds;
+
+			if(rectRot == 0){
+				continue;
+			}
 
 			//Create the transformation matrix
 			var rectTransformationMatrix = app.transformationMatrices.add({counterclockwiseRotationAngle:-rectRot});
@@ -78,7 +86,7 @@ function fit(){
             var rectBounds = myRect.geometricBounds,
                 pageBounds = myPage.bounds, //in the format [y1, x1, y2, x2], top-left and bottom-right
                 pageWidth = myPage.bounds[3]-myPage.bounds[1];
-        
+
             //check bleed (can be made more specific, good for now)
             var bleed = myDoc.documentPreferences.documentBleedTopOffset;
 
@@ -89,9 +97,9 @@ function fit(){
             } else {
                 //page
                 if(myPage.side == PageSideOptions.RIGHT_HAND){
-                    var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1],pageBounds[2]+bleed,pageBounds[3]+bleed);	
+                    var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1],pageBounds[2]+bleed,pageBounds[3]+bleed);
                 } else if(myPage.side == PageSideOptions.LEFT_HAND){
-                    var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1]-bleed,pageBounds[2]+bleed,pageBounds[3]);	
+                    var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1]-bleed,pageBounds[2]+bleed,pageBounds[3]);
                 } else { // PageSideOptions.SINGLE_SIDED
                     var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1]-bleed,pageBounds[2]+bleed,pageBounds[3]+bleed);
                 }
