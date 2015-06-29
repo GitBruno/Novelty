@@ -17,7 +17,11 @@ NOTE: This script uses the bounds to set the size and therefore does not work in
 
 #target InDesign;
 
-var Settings = {
+// Would be good if some of these can be undefined:
+
+var WB_Cutwords = {
+    moveSingleCharacters  : false,     // Boolean
+    centerText            : false,     // Boolean
     removeIndents         : true,      // Boolean
     textFrameInsetSpacing : 2,         // float: points
     heightGain            : 0.5,       // float: points. Adjust the height of the frame
@@ -35,6 +39,30 @@ var Settings = {
     name                  : "WordBurger_CutWords" // String
 };
 
+var WB_Crossword = {
+    moveSingleCharacters  : true,      // Boolean
+    forceSquares          : true,      // Boolean: Force a square when doing single characters
+    centerText            : true,      // Boolean
+    removeIndents         : true,      // Boolean
+    textFrameInsetSpacing : 2,         // float: points
+    heightGain            : 0.5,       // float: points. Adjust the height of the frame
+    textBaselineShift     : 0,         // float: points. Adjust the vertical alignment inside the frame
+    frameBaselineShift    : 0,         // float: points. Adjust the vertical position of the inline frame
+    objectStyleName       : "WB_CrosswordFrame", // String
+    strokeWeight          : 0,         // float: points. 
+    strokeColor           : "None",    // String: Swatch name or None
+    strokeTint            : [0,0],     // Array: percentage [float: Min, float: Max]
+    fillColor             : "Paper",   // String: Swatch name
+    fillTint              : [100,100], // Array: percentage [float: Min, float: Max]
+    alignToBaseline       : false,     // Boolean: Frame will be aligned to baseline from now on.
+    rotation              : [0,0],     // Array: rotation [float: Min, float: Max]
+    name                  : "WordBurger_CutWords" // String
+};
+
+var Settings = WB_Crossword;
+
+var userNeverGotObjectStyleAlert = true; // So we only get the warning once.
+
 if(app.documents.length != 0){
     //global vars
     var myDoc = app.activeDocument;
@@ -45,8 +73,16 @@ if(app.documents.length != 0){
             case "Text":
             case "Character":
             case "Word":
+            case "Paragraph":
             case "TextStyleRange":
-                main(app.selection[0]);
+            case "TextColumn":
+                if(Settings.moveSingleCharacters){
+                    for(i=app.selection[0].characters.length-1; i>=0 ; i--){
+                        main(app.selection[0].characters[i]);
+                    }
+                } else {
+                    main(app.selection[0]);
+                }
                 break;
             default:
                 alert("This is a "+ app.selection[0].constructor.name +"\nSelect some text or a textframe and try again.");
@@ -73,10 +109,18 @@ function main(selection){
     
     tf.geometricBounds = myBounds;
     
+    if(Settings.forceSquares){
+    	myBounds    = tf.geometricBounds;    
+    	tf.textFramePreferences.autoSizingType = AutoSizingTypeEnum.OFF;
+    	myBounds[3] = myBounds[1] + (myBounds[2]-myBounds[0]);
+    	tf.geometricBounds = myBounds;
+    }
+    
     selection.duplicate(LocationOptions.AFTER,tf.insertionPoints[0]);
     selection.contents = "";
     
     tf.texts[0].alignToBaseline = Settings.alignToBaseline;
+    tf.texts[0].justification = Justification.CENTER_ALIGN;
     
     if(Settings.removeIndents){
         removeIndents(tf);
@@ -118,8 +162,11 @@ function main(selection){
     try {
         tf.appliedObjectStyle = myDoc.objectStyles.item(Settings.objectStyleName);
     } catch(err){
-        alert("Could not set object Style");
-    };
+        if(userNeverGotObjectStyleAlert){
+            alert("Could not set object Style");
+            userNeverGotObjectStyleAlert = false;
+        }
+    }
     
     // Done! Reset the preview and rulers.
     fixPreviewBug(selection.parentTextFrames[0]);
@@ -133,7 +180,7 @@ function getFrameDimensions(frame){
 }
 
 function randomInRange(start,end){
-	return Math.random() * (end - start) + start;
+    return Math.random() * (end - start) + start;
 }
 
 function getOpposite(hypotenuse, angle){
@@ -161,7 +208,7 @@ function fixPreviewBug(TF){
 
 function setRulerUnits(rulerUnits){
     myDoc.viewPreferences.horizontalMeasurementUnits = rulerUnits[0];
-	myDoc.viewPreferences.verticalMeasurementUnits   = rulerUnits[0];
+    myDoc.viewPreferences.verticalMeasurementUnits   = rulerUnits[0];
 }
 
 function styleFrame(Settings, frame){
