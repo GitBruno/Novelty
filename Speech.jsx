@@ -34,6 +34,7 @@
 /***********************************************************************/
 
 var MU_POINTS = MeasurementUnits.POINTS,
+    RULER_OR = RulerOrigin.SPREAD_ORIGIN;
 	BB_GEO = BoundingBoxLimits.GEOMETRIC_PATH_BOUNDS,
 	CS_INNER = CoordinateSpaces.INNER_COORDINATES,
 	CS_PASTEBOARD = CoordinateSpaces.PASTEBOARD_COORDINATES,
@@ -324,11 +325,12 @@ var speeech = function(/*Polygon*/shape, /*?GraphicLine*/gLine)
 	// Script prefs
 	// ---
 	var vwPrefs = app.activeDocument.viewPreferences,
-		units = [vwPrefs.horizontalMeasurementUnits, vwPrefs.verticalMeasurementUnits];
-	
+		units = [vwPrefs.horizontalMeasurementUnits, vwPrefs.verticalMeasurementUnits],
+	    spreadRuler = vwPrefs.rulerOrigin;
 	vwPrefs.properties = {
 		horizontalMeasurementUnits: MU_POINTS,
-		verticalMeasurementUnits: MU_POINTS
+		verticalMeasurementUnits: MU_POINTS,
+		spreadRuler: RULER_OR
 		};
 	app.scriptPreferences.enableRedraw = true;
 
