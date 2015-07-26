@@ -9,7 +9,7 @@ Bruno Herfst 2015
 Move text to an inline frame for further manipulation.
 Rotate for example.
 
-NOTE: This script uses the bounds to set the size and therefore does not work inside 
+NOTE: This script uses the bounds to set the size and therefore does not work inside
       text frames that already have been rotated.
       It does not work with obkect srtyles in folers
 
@@ -21,6 +21,7 @@ NOTE: This script uses the bounds to set the size and therefore does not work in
 
 var WB_Cutwords = {
     moveSingleCharacters  : false,     // Boolean
+    moveSingleWords       : true,      // Boolean
     centerText            : false,     // Boolean
     removeIndents         : true,      // Boolean
     textFrameInsetSpacing : 2,         // float: points
@@ -29,11 +30,11 @@ var WB_Cutwords = {
     //textBaselineShift     : 4.5,       // float: points. Adjust the vertical alignment inside the frame
     frameBaselineShift    : 0,         // float: points. Adjust the vertical position of the inline frame
     objectStyleName       : "WB_Cut_DropShadow", // String
-    strokeWeight          : 0,         // float: points. 
+    strokeWeight          : 0,         // float: points.
     strokeColor           : "None",    // String: Swatch name or None
     strokeTint            : [0,0], // Array: percentage [float: Min, float: Max]
     fillColor             : "Black",   // String: Swatch name
-    fillTint              : [3,15],    // Array: percentage [float: Min, float: Max]
+    fillTint              : [6,15],    // Array: percentage [float: Min, float: Max]
     alignToBaseline       : false,     // Boolean: Frame will be aligned to baseline from now on.
     rotation              : [-3,5],    // Array: rotation [float: Min, float: Max]
     name                  : "WordBurger_CutWords" // String
@@ -41,6 +42,7 @@ var WB_Cutwords = {
 
 var WB_Crossword = {
     moveSingleCharacters  : true,      // Boolean
+    moveSingleWords       : false,     // Boolean
     forceSquares          : true,      // Boolean: Force a square when doing single characters
     centerText            : true,      // Boolean
     removeIndents         : true,      // Boolean
@@ -49,7 +51,7 @@ var WB_Crossword = {
     textBaselineShift     : 0,         // float: points. Adjust the vertical alignment inside the frame
     frameBaselineShift    : 0,         // float: points. Adjust the vertical position of the inline frame
     objectStyleName       : "WB_CrosswordFrame", // String
-    strokeWeight          : 0,         // float: points. 
+    strokeWeight          : 0,         // float: points.
     strokeColor           : "None",    // String: Swatch name or None
     strokeTint            : [0,0],     // Array: percentage [float: Min, float: Max]
     fillColor             : "Paper",   // String: Swatch name
@@ -59,7 +61,7 @@ var WB_Crossword = {
     name                  : "WordBurger_CutWords" // String
 };
 
-var Settings = WB_Crossword;
+var Settings = WB_Cutwords;
 
 var userNeverGotObjectStyleAlert = true; // So we only get the warning once.
 
@@ -67,11 +69,11 @@ if(app.documents.length != 0){
     //global vars
     var myDoc = app.activeDocument;
     var originalRulerUnits = [myDoc.viewPreferences.horizontalMeasurementUnits,myDoc.viewPreferences.verticalMeasurementUnits];
-    
+
     if (app.selection.length == 1){
         switch (app.selection[0].constructor.name){
-            case "Text":
             case "Character":
+            case "Text":
             case "Word":
             case "Paragraph":
             case "TextStyleRange":
@@ -79,6 +81,10 @@ if(app.documents.length != 0){
                 if(Settings.moveSingleCharacters){
                     for(i=app.selection[0].characters.length-1; i>=0 ; i--){
                         main(app.selection[0].characters[i]);
+                    }
+                } else if(Settings.moveSingleWords){
+                    for(i=app.selection[0].words.length-1; i>=0 ; i--){
+                        main(app.selection[0].words[i]);
                     }
                 } else {
                     main(app.selection[0]);
@@ -91,7 +97,7 @@ if(app.documents.length != 0){
     } else {
         alert("Select a textframe and try again.");
     }
-    
+
 }else{
     alert("Please open a document and try again.");
 }
@@ -99,66 +105,66 @@ if(app.documents.length != 0){
 function main(selection){
     // Set rulers to points
     setRulerUnits([MeasurementUnits.POINTS,MeasurementUnits.POINTS]);
-    
+
     var tf = selection.textFrames.add();
         tf.textFramePreferences.autoSizingType = AutoSizingTypeEnum.WIDTH_ONLY;
         tf.label = "Text_2_Frame"; // Just in case we need to find them again
 
-    var myBounds    = tf.geometricBounds;                
+    var myBounds    = tf.geometricBounds;
         myBounds[2] = myBounds[0] + selection.pointSize + (Settings.textFrameInsetSpacing*2) + Settings.heightGain;
-    
+
     tf.geometricBounds = myBounds;
-    
+
     if(Settings.forceSquares){
-    	myBounds    = tf.geometricBounds;    
-    	tf.textFramePreferences.autoSizingType = AutoSizingTypeEnum.OFF;
-    	myBounds[3] = myBounds[1] + (myBounds[2]-myBounds[0]);
-    	tf.geometricBounds = myBounds;
+        myBounds    = tf.geometricBounds;
+        tf.textFramePreferences.autoSizingType = AutoSizingTypeEnum.OFF;
+        myBounds[3] = myBounds[1] + (myBounds[2]-myBounds[0]);
+        tf.geometricBounds = myBounds;
     }
-    
+
     selection.duplicate(LocationOptions.AFTER,tf.insertionPoints[0]);
     selection.contents = "";
-    
+
     tf.texts[0].alignToBaseline = Settings.alignToBaseline;
     tf.texts[0].justification = Justification.CENTER_ALIGN;
-    
+
     if(Settings.removeIndents){
         removeIndents(tf);
     }
-    
+
     if(Math.abs(Settings.textBaselineShift) > 0){
         tf.texts[0].baselineShift += Settings.textBaselineShift;
     }
-    
+
     tf.textFramePreferences.firstBaselineOffset   = FirstBaseline.X_HEIGHT;
     tf.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
-    
+
     var bottomInset = Settings.textFrameInsetSpacing;
     if(Math.abs(Settings.heightGain) > 0){
         bottomInset += Settings.heightGain/2;
     }
     tf.textFramePreferences.insetSpacing = [0 + "pt",Settings.textFrameInsetSpacing + "pt",bottomInset + "pt",Settings.textFrameInsetSpacing + "pt"];
-    
+
     styleFrame(Settings,tf);
-    
+
     try{
         var tfWidth = tf.visibleBounds[3]-tf.visibleBounds[1];
     } catch(err) {
         alert("OOPS! Can't fit the new frame!\nPlease make the frame bigger and try again.");
         exit();
     }
-    
+
     tf.absoluteRotationAngle = randomInRange(Settings.rotation[0],Settings.rotation[1]);
-    
+
     // Add rotation height different to frame offset
     Settings.frameBaselineShift += -( Math.abs(getOpposite(tfWidth,tf.absoluteRotationAngle)) /2 );
-    
+
     // Align frame to center using baselineShift
     var story = selection.parentStory;
     var seltf = story.characters[(selection.index - 1)];
-    
+
     seltf.baselineShift = -(bottomInset + Settings.strokeWeight + Settings.textBaselineShift) + Settings.frameBaselineShift;
-    
+
     try {
         tf.appliedObjectStyle = myDoc.objectStyles.item(Settings.objectStyleName);
     } catch(err){
@@ -167,11 +173,11 @@ function main(selection){
             userNeverGotObjectStyleAlert = false;
         }
     }
-    
+
     // Done! Reset the preview and rulers.
     fixPreviewBug(selection.parentTextFrames[0]);
     // Reset rulers
-    setRulerUnits(originalRulerUnits);   
+    setRulerUnits(originalRulerUnits);
 }
 
 function getFrameDimensions(frame){

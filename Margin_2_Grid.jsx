@@ -66,20 +66,20 @@ function showWin(){
 	var myWin = new Window('dialog', 'Grid Margins');
 	myWin.orientation = 'column';
 	
-	myWin.btnTa = myWin.add('button', [0,0,100,0], '+ Top');
-  	myWin.btnTs = myWin.add('button', [0,0,100,0], '- Top');
+	myWin.btnTa = myWin.add('button', undefined, '+ Top');
+  	myWin.btnTs = myWin.add('button', undefined, '- Top');
   	
-  	myWin.btnIa = myWin.add('button', [0,0,100,0], '+ '+left);
-  	myWin.btnIs = myWin.add('button', [0,0,100,0], '- '+left);
+  	myWin.btnIa = myWin.add('button', undefined, '+ '+left);
+  	myWin.btnIs = myWin.add('button', undefined, '- '+left);
   	
-	myWin.btnOa = myWin.add('button', [0,0,100,0], '+ '+right);
-  	myWin.btnOs = myWin.add('button', [0,0,100,0], '- '+right);
+	myWin.btnOa = myWin.add('button', undefined, '+ '+right);
+  	myWin.btnOs = myWin.add('button', undefined, '- '+right);
   	
-  	myWin.btnBa = myWin.add('button', [0,0,100,0], '+ Bottom');
-  	myWin.btnBs = myWin.add('button', [0,0,100,0], '- Bottom');
+  	myWin.btnBa = myWin.add('button', undefined, '+ Bottom');
+  	myWin.btnBs = myWin.add('button', undefined, '- Bottom');
   	
-  	myWin.btnK = myWin.add('button', [0,0,100,0], 'Done');
-  	myWin.btnC = myWin.add('button', [0,0,100,0], 'Cancel');
+  	myWin.btnK = myWin.add('button', undefined, 'OK');
+  	myWin.btnC = myWin.add('button', undefined, 'Cancel');
   	
 	
 	//button functionality
@@ -100,6 +100,7 @@ function showWin(){
 	
 	myWin.center();
 	var myWindow = myWin.show();
+	
 	
 	var positions = ['top', 'right', 'left', 'bottom'];
 	if (myWindow %9!=0) {adjustMargin(positions[Math.floor((myWindow-1)/2)], myWindow%2);
