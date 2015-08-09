@@ -21,7 +21,7 @@ NOTE: This script uses the bounds to set the size and therefore does not work in
 
 var WB_Cutwords = {
     moveSingleCharacters  : false,     // Boolean
-    moveSingleWords       : true,      // Boolean
+    moveSingleWords       : false,      // Boolean
     centerText            : false,     // Boolean
     removeIndents         : true,      // Boolean
     textFrameInsetSpacing : 2,         // float: points

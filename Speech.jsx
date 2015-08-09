@@ -1,50 +1,58 @@
 /***********************************************************************/
 /*                                                                     */
-/*      Speeech ::  Turns a shape into a speech balloon                */
+/*     Speeech ::  Turns a shape into a speech balloon                 */
 /*                                                                     */
-/*      [Ver: 1.01]   [Author: Marc Autret]         [Modif: 01/27/12]  */
-/*      [Lang: EN]    [Req: InDesign CS4/CS5+]    [Creat: 01/27/12]    */
+/*     [Ver: 1.02]  [Author: Marc Autret]           [Modif: 07/27/15]  */
+/*     [Lang: EN]   [Req: InDesign CS4/CS5/CS6/CC]  [Creat: 01/27/12]  */
 /*                                                                     */
-/*      Installation:                                                  */
+/*     Installation:                                                   */
 /*                                                                     */
-/*      1) Place the current file into Scripts/Scripts Panel/          */
+/*     1) Place the current file into Scripts/Scripts Panel/           */
 /*                                                                     */
-/*      2) Start InDesign, open or create a document                   */
+/*     2) Start InDesign, open or create a document                    */
 /*                                                                     */
-/*      3) Create a shape (oval, rectangle, polygon, textframe).       */
+/*     3) Create a shape (oval, rectangle, polygon, textframe).        */
 /*                                                                     */
-/*      4a) In the Control panel, click one of the reference points    */
-/*          to make it the 'control point', then select the shape.     */
+/*     4a) In the Control panel, click one of the reference points     */
+/*         to make it the 'control point', then select the shape.      */
 /*                                                                     */
-/*      OR                                                             */
+/*     OR                                                              */
 /*                                                                     */
-/*      4b) Select the Line tool, position the mouse where you want    */
-/*          the speech balloon to point to, then draw a line from      */
-/*          that position to the shape. Once the guideline is drawn,   */
-/*          select *both* the line and the shape.                      */
+/*     4b) Select the Line tool, position the mouse where you want     */
+/*         the speech balloon to point to, then draw a line from       */
+/*         that position to the shape. Once the guideline is drawn,    */
+/*         select *both* the line and the shape.                       */
 /*                                                                     */
-/*      5) Exec the script from your scripts panel:                    */
-/*           Window > Automation > Scripts   [CS4]                     */
-/*           Window > Utilities > Scripts    [CS5]                     */
-/*         + double-click on the script file name                      */
+/*     5) Exec the script from your scripts panel:                     */
+/*          Window > Automation > Scripts   [CS4]                      */
+/*          Window > Utilities > Scripts    [CS5/CS6/CC]               */
+/*        + double-click on the script file name                       */
 /*                                                                     */
-/*      Bugs & Feedback : marc{at}indiscripts{dot}com                  */
-/*                        www.indiscripts.com                          */
+/*     Bugs & Feedback : marc{at}indiscripts{dot}com                   */
+/*                       www.indiscripts.com                           */
 /*                                                                     */
 /***********************************************************************/
 
-var MU_POINTS = MeasurementUnits.POINTS,
-    RULER_OR = RulerOrigin.SPREAD_ORIGIN;
-	BB_GEO = BoundingBoxLimits.GEOMETRIC_PATH_BOUNDS,
-	CS_INNER = CoordinateSpaces.INNER_COORDINATES,
-	CS_PASTEBOARD = CoordinateSpaces.PASTEBOARD_COORDINATES,
-	AP = AnchorPoint;
+//======================================
+// BORING CONSTANTS
+//======================================
 
-var	PEAK_MIN_DIST = 24,		// Minimum distance from the peak point to the edge (in pt)
-	ATTACH_WIDTH = 6,		// Distance between the attach point and each 'twin' point (in pt)
-	DEPTH = 8,				// Depth of the attach point within the frame (in pt)
-	DIR_WEIGHT = .5,		// Magnitude of the direction vectors, given as a barycentric factor ]0,1]
-	CURVE = 2;				// Curve factor (>=0)
+const MU_POINTS = +MeasurementUnits.POINTS,
+	  BB_GEO = +BoundingBoxLimits.GEOMETRIC_PATH_BOUNDS,
+	  RO_SPREAD = +RulerOrigin.SPREAD_ORIGIN, // [ADD150727]
+	  CS_INNER = +CoordinateSpaces.INNER_COORDINATES,
+	  CS_PASTEBOARD = +CoordinateSpaces.PASTEBOARD_COORDINATES,
+	  AP = AnchorPoint;
+
+//======================================
+// YOUR SETTINGS
+//======================================
+
+const PEAK_MIN_DIST = 24, // Minimum distance from the peak point to the edge (in pt)
+	  ATTACH_WIDTH = 6,   // Distance between the attach point and each 'twin' point (in pt)
+	  DEPTH = 8,          // Depth of the attach point within the frame (in pt)
+	  DIR_WEIGHT = .5,    // Magnitude of the direction vectors, given as a barycentric factor ]0,1]
+	  CURVE = 2;          // Curve factor (>=0)
 
 //======================================
 // UTILITIES
@@ -322,20 +330,27 @@ var createPeaker = function(/*PageItem*/shape, /*GraphicLine=false*/gl)
 var speeech = function(/*Polygon*/shape, /*?GraphicLine*/gLine)
 //--------------------------------------
 {
-	// Script prefs
+	// Backup and set script prefs.
 	// ---
 	var vwPrefs = app.activeDocument.viewPreferences,
-		units = [vwPrefs.horizontalMeasurementUnits, vwPrefs.verticalMeasurementUnits],
-	    spreadRuler = vwPrefs.rulerOrigin;
+		units = [+vwPrefs.horizontalMeasurementUnits, +vwPrefs.verticalMeasurementUnits],
+		ro = +vwPrefs.rulerOrigin; // [ADD150727]
+	
 	vwPrefs.properties = {
 		horizontalMeasurementUnits: MU_POINTS,
 		verticalMeasurementUnits: MU_POINTS,
-		spreadRuler: RULER_OR
+		// ---
+		// As pointed out by Bruno Herfst we need to force 'ruler spread'
+		// option in order to support multipage process. [ADD150727]
+		// ---
+		rulerOrigin: RO_SPREAD,
 		};
-	app.scriptPreferences.enableRedraw = true;
+	app.scriptPreferences.enableRedraw = false;
 
+	// Main process.
+	// ---
 	try {
-		if( null === createPeaker(shape, gLine) )
+		if( null === createPeaker(shape, gLine||false) )
 			alert( "Unable to attach the objects." );
 		}
 	catch(e)
@@ -346,10 +361,10 @@ var speeech = function(/*Polygon*/shape, /*?GraphicLine*/gLine)
 	// Restore original prefs
 	// ---
 	app.scriptPreferences.enableRedraw = true;
-
 	vwPrefs.properties = {
 		horizontalMeasurementUnits: units[0],
-		verticalMeasurementUnits: units[1]
+		verticalMeasurementUnits: units[1],
+		rulerOrigin: ro, // [ADD150727]
 		};
 };
 
