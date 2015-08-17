@@ -1,13 +1,9 @@
-// Place_Files_On_Pages.jsx
-// An InDesign javascript
+// Files_2_Pages.jsx
+// An InDesign javascript to help me build comic books.
 // Version 2.2
 // Bruno Herfst 2010 - 2015
 
 // Thanks to Marijan Tompa & Hansjörg Römer
-
-// TODO:
-// Put more value on extensions
-// Use existing pages
 
 #target indesign;
 
@@ -18,7 +14,7 @@ app.pdfPlacePreferences.pdfCrop = PDFCrop.cropMedia;
 var myDoc = app.activeDocument;
 var mySelected = 0;
 var myFiles
-if (myFiles = File.openDialog("Select files to place:", "", true)){
+if (myFiles = File.openDialog("Select files to insert:", "", true)){
 	var oldRuler = myDoc.viewPreferences.rulerOrigin;
 	myDoc.viewPreferences.rulerOrigin = RulerOrigin.pageOrigin;
 	// Create lists
@@ -111,7 +107,7 @@ function myDisplayDialog(){
 		var myFitFrameToContentCheckbox = checkboxControls.add({staticLabel:"Frame to Content", checkedState:myValues("myFitFrameToContentCheckbox", false)});
 		var myFitScaleDownCheckbox = checkboxControls.add({staticLabel:"Only Scale Down", checkedState:myValues("myFitScaleDownCheckbox", false)});
 	}
-	
+
 	var myResult = myDialog.show();
 
     if(myResult == true){
@@ -127,13 +123,13 @@ function myDisplayDialog(){
         var myFitBleed     = myFitBleedRadio.checkedState;
         var myFitCenterContent  = myFitCenterContentCheckbox.checkedState;
         var myFitFrameToContent = myFitFrameToContentCheckbox.checkedState;
-        
+
         if (mySelectedLayer.selectedIndex == list_of_layers.length-1){
             var selectedLayer = myDoc.layers.add();
         } else {
             var selectedLayer = myDoc.layers[mySelectedLayer.selectedIndex];
         }
-        
+
         var before_after = myBefore_after.selectedIndex;
 
         // save settings to doc
@@ -191,11 +187,11 @@ function myPlaceImages(myFiles, myFitPercent, myPercent, myFit, myFitMargin, myF
 	var filesPlaced = 0;
 	var filecount = myFiles.length;
 	//var hack_page = selected_pageNo;
-	
+
 	for (var i=0; i<=myFiles.length-1; i++){
 		var myCounter = 1;
 		var myBreak = false;
-		
+
 		var myFileName = myFiles[i].name;
 
 		//check for indesign doc
@@ -209,7 +205,7 @@ function myPlaceImages(myFiles, myFitPercent, myPercent, myFit, myFitMargin, myF
 
 		while(myBreak == false){
 			app.pdfPlacePreferences.pageNumber = myCounter;
-			
+
 			if( (myCounter > 1) && (before_after == 1) ){ // if we go more then once over the loop we are placing PDFs or Images
 			    //I need to reverse the PDF pages if I want to place them after a static page.
 				//Solution: update the before_after page
@@ -220,21 +216,21 @@ function myPlaceImages(myFiles, myFitPercent, myPercent, myFit, myFitMargin, myF
 			} else {
 			    var selected_page = myDoc.pages.item(selected_pageNo);
 			}
-			
+
 			if (before_after == 0){
 				var myPage = myDoc.pages.add(LocationOptions.BEFORE,selected_page);
 			} else {
 				var myPage = myDoc.pages.add(LocationOptions.AFTER,selected_page);
 			}
 			filesPlaced++;
-			
+
 			myPage.appliedMaster = change_master;
 
 			var myTopMargin = myPage.marginPreferences.top;
 			var myBottomMargin = myPage.marginPreferences.bottom;
 			var bleed = myDoc.documentPreferences.documentBleedTopOffset; //(can be made more specific, good for now);
 
-            if( ((before_after == 1) && (myPage.side == PageSideOptions.leftHand)  && (filecount %2 == 0)) 
+            if( ((before_after == 1) && (myPage.side == PageSideOptions.leftHand)  && (filecount %2 == 0))
              || ((before_after == 1) && (myPage.side == PageSideOptions.rightHand) && (filecount %2 == 1))
              || ((before_after == 0) && (myPage.side == PageSideOptions.leftHand))
              ){
@@ -242,7 +238,7 @@ function myPlaceImages(myFiles, myFitPercent, myPercent, myFit, myFitMargin, myF
             } else {
                 var startPage = 1;
             }
-            
+
 			if(filesPlaced % 2 == startPage){
 			        var myOutsideMargin = myPage.marginPreferences.left;
 					var myInsideMargin = myPage.marginPreferences.right;
@@ -255,7 +251,7 @@ function myPlaceImages(myFiles, myFitPercent, myPercent, myFit, myFitMargin, myF
 				var bleedLeft  = 0;
 				var bleedRight = bleed;
 			}
-			
+
 			if (myFitMargin){
 				var myX1 = myInsideMargin;
 				var myY1 = myTopMargin;
@@ -307,7 +303,7 @@ function myPlaceImages(myFiles, myFitPercent, myPercent, myFit, myFitMargin, myF
 				if(myFitFrameToContent){
 					myRectangle.fit(FitOptions.frameToContent);
 				}
-				
+
 				if(inddpagelength == null){
 					// Thanks to Hansjörg Römer for the PDF functionality!
 					if(myCounter == 1){ // First run, PDF already placed
