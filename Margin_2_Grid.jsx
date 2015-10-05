@@ -3,222 +3,177 @@
 Adjust_Margin_Grid.jsx
 Bruno Herfst 2011
 
-moves the margins on grid.
-note this only works with grids that are a division of pagesize
+Adjust the margins based on grid steps
+
+NOTE this only works with grids that are a division of pagesize
 
 */
 
+
 #target InDesign;
+#targetengine "session";
 
 try {
 	//global vars
-	var myDoc = app.activeDocument;
-	//get grid offset
-	var orGridH = myDoc.gridPreferences.horizontalGridlineDivision,
-		orGridV = myDoc.gridPreferences.verticalGridlineDivision,
-		//save preferences
-		myOrGridBool = myDoc.gridPreferences.documentGridShown,
-		myOrLayoutAdj = myDoc.layoutAdjustmentPreferences.enableLayoutAdjustment,
-		myPageHeight = myDoc.documentPreferences.pageHeight,
-		myPageWidth = myDoc.documentPreferences.pageWidth;
-		
-		//save measurements units
-		myOldXUnits = myDoc.viewPreferences.horizontalMeasurementUnits;
-		myOldYUnits = myDoc.viewPreferences.verticalMeasurementUnits;
-		//set measurements units to points
-		setRulerUnits(myDoc, MeasurementUnits.points, MeasurementUnits.points);
-		
-		//myDoc.gridPreferences.horizontalGridlineDivision = myPageWidth/(Math.round(myPageWidth/myDoc.gridPreferences.horizontalGridlineDivision));
-		//myDoc.gridPreferences.verticalGridlineDivision = myPageHeight/(Math.round(myPageHeight/myDoc.gridPreferences.verticalGridlineDivision));
-		
-	//save old margins
-	var myTopMargin = myDoc.marginPreferences.top,
-		myBottomMargin = myDoc.marginPreferences.bottom,
-		myOutsideMargin = myDoc.marginPreferences.left,
-		myInsideMargin = myDoc.marginPreferences.right,
-		hGrid = myDoc.gridPreferences.horizontalGridlineDivision / myDoc.gridPreferences.horizontalGridSubdivision,
-		vGrid = myDoc.gridPreferences.verticalGridlineDivision / myDoc.gridPreferences.verticalGridSubdivision;
+	var DOC = app.activeDocument;
+	var ACTIVESPREAD = app.activeWindow.activeSpread;
+	var ORIGINAL_RULERS = setRulerUnits(DOC, [MeasurementUnits.points, MeasurementUnits.points]); // Safe old ruler units whils setting to points
+
+	//save original units
+	ORIGINAL_GRIDSHOWN = DOC.gridPreferences.documentGridShown;
+	ORIGINAL_LAYOUTADJ = DOC.layoutAdjustmentPreferences.enableLayoutAdjustment;
+
+	//set custom units
 	
-	// set preferences
-	myDoc.gridPreferences.documentGridShown = true;
-	myDoc.layoutAdjustmentPreferences.enableLayoutAdjustment = true;
+
+	// Show grid while interacting with the UI
+	DOC.gridPreferences.documentGridShown = true;
+	DOC.layoutAdjustmentPreferences.enableLayoutAdjustment = true; //This should be a feuture that the user controls in UI
+
+	//Save grid step
+	var HGS = DOC.gridPreferences.horizontalGridlineDivision / DOC.gridPreferences.horizontalGridSubdivision, // Horizontal Grid Step
+		VGS = DOC.gridPreferences.verticalGridlineDivision / DOC.gridPreferences.verticalGridSubdivision;     // Vertical Grid Step
+
 	// Let’s set the docs marginpref to grid first
-	marginPreftoGrid();
+	marginPreftoGrid(ACTIVESPREAD);
 	// Let’s do it!
-	showWin();
+	showUI(ACTIVESPREAD);
+
 } catch(err) {
-	var txt=err.description;
-	alert(txt);
+	alert(err.description);
 	exit();
 }
 
+function showUI(ACTIVESPREAD){
 
-//------------------------------------- F U N C T I O N S -------------------------------------
+	var myWindow = new Window ("palette", "Change Selected Spread Margins");
+		myWindow.orientation = "row";
+	var myInputGroup = myWindow.add ("group");
+		myInputGroup.orientation = "column";
+		myInputGroup.alignChildren = "right";
 
-function showWin(){
-	if(myDoc.documentPreferences.facingPages == true){
-		var right = "Outside",
-			left = "Inside";
-	}else{
-		var right = "Right",
-			left = "Left"
-	}
-	var myWin = new Window('dialog', 'Grid Margins');
-	myWin.orientation = 'column';
-	
-	myWin.btnTa = myWin.add('button', undefined, '+ Top');
-  	myWin.btnTs = myWin.add('button', undefined, '- Top');
-  	
-  	myWin.btnIa = myWin.add('button', undefined, '+ '+left);
-  	myWin.btnIs = myWin.add('button', undefined, '- '+left);
-  	
-	myWin.btnOa = myWin.add('button', undefined, '+ '+right);
-  	myWin.btnOs = myWin.add('button', undefined, '- '+right);
-  	
-  	myWin.btnBa = myWin.add('button', undefined, '+ Bottom');
-  	myWin.btnBs = myWin.add('button', undefined, '- Bottom');
-  	
-  	myWin.btnK = myWin.add('button', undefined, 'OK');
-  	myWin.btnC = myWin.add('button', undefined, 'Cancel');
-  	
-	
-	//button functionality
-	myWin.btnTa.onClick = function () { myWin.close(1); }; // Top Add
-	myWin.btnTs.onClick = function () { myWin.close(2); }; // Top subtract
-	
-	myWin.btnOa.onClick = function () { myWin.close(3); }; // Outside (right) Add
-	myWin.btnOs.onClick = function () { myWin.close(4); }; // Outside (right) subtract
-	
-	myWin.btnIa.onClick = function () { myWin.close(5); }; // Inside (left) Add
-	myWin.btnIs.onClick = function () { myWin.close(6); }; // Inside (left) subtract
-	
-	myWin.btnBa.onClick = function () { myWin.close(7); }; // Bottom Add
-	myWin.btnBs.onClick = function () { myWin.close(8); }; // Bottom subtract
-	
-	myWin.btnC.onClick = function () { myWin.close(0); };
-	myWin.btnK.onClick = function () { myWin.close(9); };
-	
-	myWin.center();
-	var myWindow = myWin.show();
-	
-	
-	var positions = ['top', 'right', 'left', 'bottom'];
-	if (myWindow %9!=0) {adjustMargin(positions[Math.floor((myWindow-1)/2)], myWindow%2);
-	showWin();}
-	else {
-		switch (myWindow){
-		case 9: // OK
-			//restore preferences
-			myDoc.gridPreferences.documentGridShown = myOrGridBool;
-			myDoc.layoutAdjustmentPreferences.enableLayoutAdjustment = myOrLayoutAdj;
-			//restore measurements units
-			setRulerUnits(myDoc, myOldXUnits, myOldYUnits);
-			exit();
-			break;
-		default: // cancel
-			//restore preferences
-			//myDoc.gridPreferences.horizontalGridlineDivision = orGridH;
-			//myDoc.gridPreferences.verticalGridlineDivision = orGridH;
-			myDoc.marginPreferences.top = myTopMargin;
-			myDoc.marginPreferences.bottom = myBottomMargin;
-			myDoc.marginPreferences.left = myOutsideMargin;
-			myDoc.marginPreferences.right = myInsideMargin;
-			updateMasters();
-			myDoc.gridPreferences.documentGridShown = myOrGridBool;
-			myDoc.layoutAdjustmentPreferences.enableLayoutAdjustment = myOrLayoutAdj;
-			//restore measurements units
-			setRulerUnits(myDoc, myOldXUnits, myOldYUnits);
-			exit();
-			break;
-		}
+	var myTopMarginGroup = myInputGroup.add ("group");
+		myTopMarginGroup.orientation = "row";
+
+		myTopMarginGroup.add ("statictext", undefined, "Top:");
+		var topAddWhole = myTopMarginGroup.add ("button", undefined, "-1 gs");
+		var topAddQuart = myTopMarginGroup.add ("button", undefined, "-0.25 gs");
+		var topSubQuart = myTopMarginGroup.add ("button", undefined, "+0.25 gs");
+		var topSubWhole = myTopMarginGroup.add ("button", undefined, "+1 gs");
+
+		    topAddWhole.onClick = function () {addGS_2_spread(ACTIVESPREAD, "top", -1)};
+		    topAddQuart.onClick = function () {addGS_2_spread(ACTIVESPREAD, "top", -0.25)};
+		    topSubQuart.onClick = function () {addGS_2_spread(ACTIVESPREAD, "top", +0.25)};
+		    topSubWhole.onClick = function () {addGS_2_spread(ACTIVESPREAD, "top", +1)};
+
+	var myOutMarginGroup = myInputGroup.add ("group");
+		myOutMarginGroup.orientation = "row";
+
+		myOutMarginGroup.add ("statictext", undefined, "Outside:");
+		var outAddWhole = myOutMarginGroup.add ("button", undefined, "-1 gs");
+		var outAddQuart = myOutMarginGroup.add ("button", undefined, "-0.25 gs");
+		var outSubQuart = myOutMarginGroup.add ("button", undefined, "+0.25 gs");
+		var outSubWhole = myOutMarginGroup.add ("button", undefined, "+1 gs");
+
+		    outAddWhole.onClick = function () {addGS_2_spread(ACTIVESPREAD, "out", -1)};
+		    outAddQuart.onClick = function () {addGS_2_spread(ACTIVESPREAD, "out", -0.25)};
+		    outSubQuart.onClick = function () {addGS_2_spread(ACTIVESPREAD, "out", +0.25)};
+		    outSubWhole.onClick = function () {addGS_2_spread(ACTIVESPREAD, "out", +1)};
+
+	var myInsMarginGroup = myInputGroup.add ("group");
+		myInsMarginGroup.orientation = "row";
+
+		myInsMarginGroup.add ("statictext", undefined, "Inside:");
+		var insAddWhole = myInsMarginGroup.add ("button", undefined, "-1 gs");
+		var insAddQuart = myInsMarginGroup.add ("button", undefined, "-0.25 gs");
+		var insSubQuart = myInsMarginGroup.add ("button", undefined, "+0.25 gs");
+		var insSubWhole = myInsMarginGroup.add ("button", undefined, "+1 gs");
+
+		    insAddWhole.onClick = function () {addGS_2_spread(ACTIVESPREAD, "ins", -1)};
+		    insAddQuart.onClick = function () {addGS_2_spread(ACTIVESPREAD, "ins", -0.25)};
+		    insSubQuart.onClick = function () {addGS_2_spread(ACTIVESPREAD, "ins", +0.25)};
+		    insSubWhole.onClick = function () {addGS_2_spread(ACTIVESPREAD, "ins", +1)};
+
+	var myBotMarginGroup = myInputGroup.add ("group");
+		myBotMarginGroup.orientation = "row";
+
+		myBotMarginGroup.add ("statictext", undefined, "Bottom:");
+		var botAddWhole = myBotMarginGroup.add ("button", undefined, "-1 gs");
+		var botAddQuart = myBotMarginGroup.add ("button", undefined, "-0.25 gs");
+		var botSubQuart = myBotMarginGroup.add ("button", undefined, "+0.25 gs");
+		var botSubWhole = myBotMarginGroup.add ("button", undefined, "+1 gs");
+
+		    botAddWhole.onClick = function () {addGS_2_spread(ACTIVESPREAD, "bot", -1)};
+		    botAddQuart.onClick = function () {addGS_2_spread(ACTIVESPREAD, "bot", -0.25)};
+		    botSubQuart.onClick = function () {addGS_2_spread(ACTIVESPREAD, "bot", +0.25)};
+		    botSubWhole.onClick = function () {addGS_2_spread(ACTIVESPREAD, "bot", +1)};
+
+	var myButtonGroup = myWindow.add ("group");
+		myButtonGroup.orientation = "column";
+	var ok_but     = myButtonGroup.add ("button", undefined, "EXIT");
+	// We need to add a script undo function if we want to undo all changes made
+	// Don’t have time for that at the moment, sorry!
+	//var cancel_but = myButtonGroup.add ("button", undefined, "Cancel");
+
+		ok_but.onClick = function () {
+			setRulerUnits(DOC, ORIGINAL_RULERS);
+			myWindow.close()};
+		//cancel_but.onClick = function () {};
+
+	myWindow.show ();
+
+}
+
+function marginPreftoGrid(SPREAD){
+	var VGSQ = VGS/4;
+	var HGSQ = HGS/4
+	for (var page = 0; page < SPREAD.pages.length; page++){
+		var PAGE = SPREAD.pages[page];
+		PAGE.marginPreferences.top    = ( Math.round(PAGE.marginPreferences.top    /VGSQ) ) *VGSQ;
+		PAGE.marginPreferences.bottom = ( Math.round(PAGE.marginPreferences.bottom /VGSQ) ) *VGSQ;
+		PAGE.marginPreferences.left   = ( Math.round(PAGE.marginPreferences.left   /HGSQ) ) *HGSQ;
+		PAGE.marginPreferences.right  = ( Math.round(PAGE.marginPreferences.right  /HGSQ) ) *HGSQ;
 	}
 }
 
-function marginPreftoGrid(){
-	myDoc.marginPreferences.top = (Math.round(myDoc.masterSpreads[0].pages[0].marginPreferences.right/vGrid))*vGrid;
-	myDoc.marginPreferences.right = (Math.round(myDoc.masterSpreads[0].pages[0].marginPreferences.right/hGrid))*hGrid;
-	myDoc.marginPreferences.left = (Math.round(myDoc.masterSpreads[0].pages[0].marginPreferences.right/hGrid))*hGrid;
-	myDoc.marginPreferences.bottom = (Math.round(myDoc.masterSpreads[0].pages[0].marginPreferences.right/vGrid))*vGrid;
-	updateMasters();
+function addGS_2_spread(SPREAD, SIDE, STEP){
+	alert(SPREAD.pages.length);
+	for (var page = 0; page < SPREAD.pages.length; page++){
+		var PAGE = SPREAD.pages[page];
+		addGS_2_Page(PAGE, SIDE, STEP);
+	}
 }
 
-function adjustMargin(side,AddSubtractBool){
-	myDoc.marginPreferences[side] += ((side == 'top' || side == 'bottom')?vGrid:hGrid)*((AddSubtractBool)?1:-1);
-	//myDoc.marginPreferences[side] += this[((side.substr(-1,1)=='t')?'h':'v')+'Grid']*((AddSubtractBool)?1:-1);
-	
-	//var mod = (AddSubtractBool)? 1 : -1;
-	
-	/*switch(side){
-		case 'top':
-			myDoc.marginPreferences.top += vGrid * mod;
+function addGS_2_Page(PAGE, SIDE, STEP){
+	switch (SIDE) {
+		case "top":
+			PAGE.marginPreferences.top    += doRound(STEP*VGS, 3);
 			break;
-		case 'right':
-			if(AddSubtractBool == true){
-				myDoc.marginPreferences.right += hGrid;
-			} else {
-				myDoc.marginPreferences.right -= hGrid;
-			}
+		case "bot":
+			PAGE.marginPreferences.bottom += doRound(STEP*VGS, 3);
 			break;
-		case 'bottom':
-			if(AddSubtractBool == true){
-				myDoc.marginPreferences.bottom += vGrid;
-			} else {
-				myDoc.marginPreferences.bottom -= vGrid;
-			}
+		case "ins":
+			PAGE.marginPreferences.right  += doRound(STEP*HGS, 3);
 			break;
-		case 'left':
-			if(AddSubtractBool == true){
-				myDoc.marginPreferences.left += hGrid;
-			} else {
-				myDoc.marginPreferences.left -= hGrid;
-			}
+		case "out":
+			PAGE.marginPreferences.left   += doRound(STEP*HGS, 3);
 			break;
 		default:
-			alert('whoops!');
-			exit();
+			alert("Margin not supported: " + SIDE);
 			break;
-	}*/
-	updateMasters();
+	}
 }
 
-function setRulerUnits(myDoc,XUnits,YUnits){
-    //myUnits choices are:
-    //MeasurementUnits.picas
-    //MeasurementUnits.points
-    //MeasurementUnits.inches
-    //MeasurementUnits.inchesDecimal
-    //MeasurementUnits.millimeters
-    //MeasurementUnits.centimeters
-    //MeasurementUnits.ciceros
-    //MeasurementUnits.gates
-    myDoc.viewPreferences.horizontalMeasurementUnits = XUnits;
-    myDoc.viewPreferences.verticalMeasurementUnits = YUnits;
+function setRulerUnits(DOC, RulerUnitsXY){
+    var originalUnits = [DOC.viewPreferences.horizontalMeasurementUnits, DOC.viewPreferences.verticalMeasurementUnits];
+
+    DOC.viewPreferences.horizontalMeasurementUnits = RulerUnitsXY[0];
+    DOC.viewPreferences.verticalMeasurementUnits = RulerUnitsXY[1];
+
+    return originalUnits;
 }
 
 function doRound(myNum, roundDec) {
 	var roundMulit = Math.pow(10,roundDec);
 	return Math.round(myNum*roundMulit)/roundMulit;
-}
-
-function updateMasters(){
-	for(var i=0; i < myDoc.masterSpreads.length; i++){
-		for(var j=0; j < myDoc.masterSpreads.item(i).pages.length; j++){
-			myPage = myDoc.masterSpreads.item(i).pages.item(j);
-			updatePage(myPage);
-		}
-	}
-}
-
-function updatePage(myPage){
-	try {
-		// We need to round these numbers 
-		// Indesign does not like more than three decimals here
-		// This will fix the boundingbox error with automatic textflow
-		myPage.marginPreferences.top = doRound(myDoc.marginPreferences.top, 3);
-		myPage.marginPreferences.bottom = doRound(myDoc.marginPreferences.bottom, 3);
-		myPage.marginPreferences.left = doRound(myDoc.marginPreferences.left, 3);
-		myPage.marginPreferences.right = doRound(myDoc.marginPreferences.right, 3);		
-	} catch(err) {
-	  	alert(err.description);
-	}
 }

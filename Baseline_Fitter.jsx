@@ -237,10 +237,10 @@ function fixGrid(myDoc, myIdealLeading){
 	myH_every = (myIdealLeading*(myPageWidth/myPageHeight))*3;
 	
 	myDoc.gridPreferences.horizontalGridlineDivision = doRound(myH_every,3);
-	myDoc.gridPreferences.horizontalGridSubdivision = myDevide;
+	myDoc.gridPreferences.horizontalGridSubdivision = myDevide*3;
 	
 	myDoc.gridPreferences.verticalGridlineDivision = doRound(myV_every,3);
-	myDoc.gridPreferences.verticalGridSubdivision = myDevide;
+	myDoc.gridPreferences.verticalGridSubdivision = myDevide*3;
 }
 
 function fixPage(myPage, myMargins, myIdealLeading){
