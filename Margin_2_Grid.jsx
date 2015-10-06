@@ -177,12 +177,20 @@ function showUI(ACTIVESPREAD){
 	//var cancel_but = myButtonGroup.add ("button", undefined, "Cancel");
 
 		ok_but.onClick = function () {
-			setRulerUnits(DOC, ORIGINAL_RULERS);
-			myWindow.close()};
+			resetSettings();
+			myWindow.close()
+		};
 		//cancel_but.onClick = function () {};
 
 	myWindow.show ();
 
+}
+
+function resetSettings(){
+	// This function changes back all settings to original settings
+	setRulerUnits(DOC, ORIGINAL_RULERS);
+	DOC.gridPreferences.documentGridShown = ORIGINAL_GRIDSHOWN;
+	DOC.layoutAdjustmentPreferences.enableLayoutAdjustment = ORIGINAL_LAYOUTADJ;
 }
 
 function marginPreftoGrid(SPREAD){
@@ -253,16 +261,3 @@ function addGS_2_Page(PAGE, SIDE, STEP){
 	}
 }
 
-function setRulerUnits(DOC, RulerUnitsXY){
-    var originalUnits = [DOC.viewPreferences.horizontalMeasurementUnits, DOC.viewPreferences.verticalMeasurementUnits];
-
-    DOC.viewPreferences.horizontalMeasurementUnits = RulerUnitsXY[0];
-    DOC.viewPreferences.verticalMeasurementUnits = RulerUnitsXY[1];
-
-    return originalUnits;
-}
-
-function doRound(myNum, roundDec) {
-	var roundMulit = Math.pow(10,roundDec);
-	return Math.round(myNum*roundMulit)/roundMulit;
-}
