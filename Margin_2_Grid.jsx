@@ -6,8 +6,10 @@ Bruno Herfst 2011 - 2015
 Adjust the margins based on grid steps
 
 NOTE this script is meant to be run only on single or double page spreads 
-     that use grids based on a division of pagesize
-
+     and works best on grids based on a division of pagesize
+	 
+	 At the moment the script assumes the ruler origin is set to 0
+	 and all pages are the same size.
 */
 
 #target InDesign;
@@ -16,15 +18,20 @@ NOTE this script is meant to be run only on single or double page spreads
 try {
 	//global vars
 	var DOC = app.activeDocument;
+	var DOC_SIZE = { W : DOC.documentPreferences.pageWidth, H : DOC.documentPreferences.pageHeight};
 	var ACTIVESPREAD = app.activeWindow.activeSpread;
+	var PAGECOUNT = ACTIVESPREAD.pages.length;
+
+	if(PAGECOUNT > 2){
+		alert("Continue with caution\nThis script may not work well on spreads with more then two pages.");
+		// It think we need to check page individual page sizes here so it can work properly.
+	}
+
 	var ORIGINAL_RULERS = setRulerUnits(DOC, [MeasurementUnits.MILLIMETERS, MeasurementUnits.MILLIMETERS]); // Safe old ruler units whils setting to points
 
 	//save original units
 	ORIGINAL_GRIDSHOWN = DOC.gridPreferences.documentGridShown;
 	ORIGINAL_LAYOUTADJ = DOC.layoutAdjustmentPreferences.enableLayoutAdjustment;
-
-	//set custom units
-	
 
 	// Show grid while interacting with the UI
 	DOC.gridPreferences.documentGridShown = true;
@@ -33,6 +40,10 @@ try {
 	//Save grid step
 	var HGS = DOC.gridPreferences.horizontalGridlineDivision / DOC.gridPreferences.horizontalGridSubdivision, // Horizontal Grid Step
 		VGS = DOC.gridPreferences.verticalGridlineDivision / DOC.gridPreferences.verticalGridSubdivision;     // Vertical Grid Step
+
+	var H_REMAINDER = DOC_SIZE.W % HGS;  // Leftover grid at the bottom
+	var V_REMAINDER = DOC_SIZE.H % VGS;  // Leftover grid at the right 
+	var H_OVERFLOW  = HGS % H_REMAINDER; // Leftover grid on the next page on spread
 
 	// Let’s set the docs marginpref to grid first
 	var currMargin = marginPreftoGrid(ACTIVESPREAD);
@@ -61,24 +72,29 @@ function showUI(ACTIVESPREAD){
 		var topSubQuart = myTopMarginGroup.add ("button", undefined, "+0.25 gs");
 		var topSubWhole = myTopMarginGroup.add ("button", undefined, "+1 gs");
 
-		    topAddWhole.onClick = function () {addGS_2_spread(ACTIVESPREAD, "top", -1);
+		    topAddWhole.onClick = function () {
+		    	addGS_2_spread(ACTIVESPREAD, "top", -1);
 		    	currMargin = getMargins(ACTIVESPREAD.pages[0]);
 		    	myTopValue.text = doRound(currMargin[0],3)+"mm";
 		    };
-		    topAddQuart.onClick = function () {addGS_2_spread(ACTIVESPREAD, "top", -0.25);
+		    topAddQuart.onClick = function () {
+		    	addGS_2_spread(ACTIVESPREAD, "top", -0.25);
 		    	currMargin = getMargins(ACTIVESPREAD.pages[0]);
 		    	myTopValue.text = doRound(currMargin[0],3)+"mm";
 		    };
-		    topSubQuart.onClick = function () {addGS_2_spread(ACTIVESPREAD, "top", +0.25);
+		    topSubQuart.onClick = function () {
+		    	addGS_2_spread(ACTIVESPREAD, "top", 0.25);
 		    	currMargin = getMargins(ACTIVESPREAD.pages[0]);
 		    	myTopValue.text = doRound(currMargin[0],3)+"mm";
 		    };
-		    topSubWhole.onClick = function () {addGS_2_spread(ACTIVESPREAD, "top", +1);
+		    topSubWhole.onClick = function () {
+		    	addGS_2_spread(ACTIVESPREAD, "top", 1);
 		    	currMargin = getMargins(ACTIVESPREAD.pages[0]);
 		    	myTopValue.text = doRound(currMargin[0],3)+"mm";
 		    };
 
 		var myTopValue = myTopMarginGroup.add ("statictext", undefined, doRound(currMargin[0],3)+"mm");
+		    myTopValue.characters = 10;
 
 	var myOutMarginGroup = myInputGroup.add ("group");
 		myOutMarginGroup.orientation = "row";
@@ -89,24 +105,29 @@ function showUI(ACTIVESPREAD){
 		var outSubQuart = myOutMarginGroup.add ("button", undefined, "+0.25 gs");
 		var outSubWhole = myOutMarginGroup.add ("button", undefined, "+1 gs");
 
-		    outAddWhole.onClick = function () {addGS_2_spread(ACTIVESPREAD, "out", -1);
+		    outAddWhole.onClick = function () {
+		    	addGS_2_spread(ACTIVESPREAD, "out", -1);
 		    	currMargin = getMargins(ACTIVESPREAD.pages[0]);
 		    	myOutValue.text = doRound(currMargin[2],3)+"mm";
 		    };
-		    outAddQuart.onClick = function () {addGS_2_spread(ACTIVESPREAD, "out", -0.25);
+		    outAddQuart.onClick = function () {
+		    	addGS_2_spread(ACTIVESPREAD, "out", -0.25);
 		    	currMargin = getMargins(ACTIVESPREAD.pages[0]);
 		    	myOutValue.text = doRound(currMargin[2],3)+"mm";
 		    };
-		    outSubQuart.onClick = function () {addGS_2_spread(ACTIVESPREAD, "out", +0.25);
+		    outSubQuart.onClick = function () {
+		    	addGS_2_spread(ACTIVESPREAD, "out", 0.25);
 		    	currMargin = getMargins(ACTIVESPREAD.pages[0]);
 		    	myOutValue.text = doRound(currMargin[2],3)+"mm";
 		    };
-		    outSubWhole.onClick = function () {addGS_2_spread(ACTIVESPREAD, "out", +1);
+		    outSubWhole.onClick = function () {
+		    	addGS_2_spread(ACTIVESPREAD, "out", 1);
 		    	currMargin = getMargins(ACTIVESPREAD.pages[0]);
 		    	myOutValue.text = doRound(currMargin[2],3)+"mm";
 		    };
 
 		var myOutValue = myOutMarginGroup.add ("statictext", undefined, doRound(currMargin[2],3)+"mm");
+			myOutValue.characters = 10;
 
 	var myInsMarginGroup = myInputGroup.add ("group");
 		myInsMarginGroup.orientation = "row";
@@ -128,17 +149,18 @@ function showUI(ACTIVESPREAD){
 		    	myInsValue.text = doRound(currMargin[3],3)+"mm";
 		    }
 		    insSubQuart.onClick = function () {
-		    	addGS_2_spread(ACTIVESPREAD, "ins", +0.25);
+		    	addGS_2_spread(ACTIVESPREAD, "ins", 0.25);
 				currMargin = getMargins(ACTIVESPREAD.pages[0]);
 		    	myInsValue.text = doRound(currMargin[3],3)+"mm";
 		    }
 		    insSubWhole.onClick = function () {
-		    	addGS_2_spread(ACTIVESPREAD, "ins", +1);
+		    	addGS_2_spread(ACTIVESPREAD, "ins", 1);
 		    	currMargin = getMargins(ACTIVESPREAD.pages[0]);
 		    	myInsValue.text = doRound(currMargin[3],3)+"mm";
 		    }
 
 		var myInsValue = myInsMarginGroup.add ("statictext", undefined, doRound(currMargin[3],3)+"mm");
+			myInsValue.characters = 10;
 
 	var myBotMarginGroup = myInputGroup.add ("group");
 		myBotMarginGroup.orientation = "row";
@@ -154,20 +176,24 @@ function showUI(ACTIVESPREAD){
 		    	currMargin = getMargins(ACTIVESPREAD.pages[0]);
 		    	myBotValue.text = doRound(currMargin[1],3)+"mm";
 		    };
-		    botAddQuart.onClick = function () {addGS_2_spread(ACTIVESPREAD, "bot", -0.25);
+		    botAddQuart.onClick = function () {
+		    	addGS_2_spread(ACTIVESPREAD, "bot", -0.25);
 		    	currMargin = getMargins(ACTIVESPREAD.pages[0]);
 		    	myBotValue.text = doRound(currMargin[1],3)+"mm";
 		    };
-		    botSubQuart.onClick = function () {addGS_2_spread(ACTIVESPREAD, "bot", +0.25);
+		    botSubQuart.onClick = function () {
+		    	addGS_2_spread(ACTIVESPREAD, "bot", 0.25);
 		    	currMargin = getMargins(ACTIVESPREAD.pages[0]);
 		    	myBotValue.text = doRound(currMargin[1],3)+"mm";
 		    };
-		    botSubWhole.onClick = function () {addGS_2_spread(ACTIVESPREAD, "bot", +1);
+		    botSubWhole.onClick = function () {
+		    	addGS_2_spread(ACTIVESPREAD, "bot", 1);
 		    	currMargin = getMargins(ACTIVESPREAD.pages[0]);
 		    	myBotValue.text = doRound(currMargin[1],3)+"mm";
 		    };
 
 		var myBotValue = myBotMarginGroup.add ("statictext", undefined, doRound(currMargin[1],3)+"mm");
+			myBotValue.characters = 10;
 
 	var myButtonGroup = myWindow.add ("group");
 		myButtonGroup.orientation = "column";
@@ -195,13 +221,21 @@ function resetSettings(){
 
 function marginPreftoGrid(SPREAD){
 	var VGSQ = VGS/4;
-	var HGSQ = HGS/4
+	var HGSQ = HGS/4;
+
 	for (var page = 0; page < SPREAD.pages.length; page++){
 		var PAGE = SPREAD.pages[page];
 		PAGE.marginPreferences.top    = ( Math.round(PAGE.marginPreferences.top    /VGSQ) ) *VGSQ;
 		PAGE.marginPreferences.bottom = ( Math.round(PAGE.marginPreferences.bottom /VGSQ) ) *VGSQ;
 		PAGE.marginPreferences.left   = ( Math.round(PAGE.marginPreferences.left   /HGSQ) ) *HGSQ;
 		PAGE.marginPreferences.right  = ( Math.round(PAGE.marginPreferences.right  /HGSQ) ) *HGSQ;
+		
+		// Fix overflows
+		PAGE.marginPreferences.bottom += V_REMAINDER;
+		if(page == 1){ // note only works for spreads with two pages that are the same size
+			PAGE.marginPreferences.left  += H_OVERFLOW;
+			PAGE.marginPreferences.right += H_REMAINDER;
+		}
 	}
 	return getMargins(SPREAD.pages[0]);
 }
@@ -241,7 +275,6 @@ function addGS_2_Page(PAGE, SIDE, STEP){
 			SIDE = "rig";
 		}
 	}
-
 	switch (SIDE) {
 		case "top":
 			PAGE.marginPreferences.top    += doRound(STEP*VGS, 3);
@@ -259,5 +292,6 @@ function addGS_2_Page(PAGE, SIDE, STEP){
 			alert("Margin not supported: " + SIDE);
 			break;
 	}
+
 }
 

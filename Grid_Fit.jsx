@@ -38,35 +38,20 @@ try {
 
 function showUI(){
 
+	function resetUIvalues(){
+		GS = getGridStep();
+		v_editGS.text = GS.VGS;
+		h_editGS.text = GS.HGS;
+		v_row1_unit.text = current_measure_unit;
+		h_row1_unit.text = current_measure_unit;
+	}
+
 	var myWindow = new Window ("palette", "Grid Fit V1");
 		myWindow.orientation = "column";
 
-	// START VERTICAL GRID STEP MEASUREMENTS
-	var myVerticalGridGroup = myWindow.add ("panel", undefined, "HEIGHT");
-		myVerticalGridGroup.orientation = "column";
-		
-		var v_row1 = myVerticalGridGroup.add ("group");
-			v_row1.orientation = "row";
-
-			v_row1.add ("statictext", undefined, "Current GS: ");
-		var v_editGS = v_row1.add ("edittext", undefined, GS.VGS);
-			v_editGS.characters = 6;
-		var v_row1_unit = v_row1.add ("statictext", undefined, current_measure_unit);
-
-		var v_row1_but_set = v_row1.add ("button", undefined, "Set");
-			v_row1_but_set.onClick = function () {
-				setVGS(v_editGS.text);
-				resetUIvalues();
-			};
-
-		var v_row1_but_fit = v_row1.add ("button", undefined, "Fit");
-			v_row1_but_fit.onClick = function () {
-				fitVGS(v_editGS.text);
-				resetUIvalues();
-			};
-
-
-	// START HORIZONTAL GRID STEP MEASUREMENTS
+	/////////////////////////////////////////////
+	// START HORIZONTAL GRID STEP MEASUREMENTS //
+	/////////////////////////////////////////////
 	var myHorizontalGridGroup = myWindow.add ("panel", undefined, "WIDTH");
 		myHorizontalGridGroup.orientation = "column";
 		
@@ -84,9 +69,59 @@ function showUI(){
 				resetUIvalues();
 			};
 
+		var h_row1_but_fitMinus = h_row1.add ("button", undefined, "Fit - 1");
+			h_row1_but_fitMinus.onClick = function () {
+				fitHGS(h_editGS.text, -1);
+				resetUIvalues();
+			};
+
 		var h_row1_but_fit = h_row1.add ("button", undefined, "Fit");
 			h_row1_but_fit.onClick = function () {
-				fitHGS(h_editGS.text);
+				fitHGS(h_editGS.text, 0);
+				resetUIvalues();
+			};
+
+		var h_row1_but_fitPlus = h_row1.add ("button", undefined, "Fit + 1");
+			h_row1_but_fitPlus.onClick = function () {
+				fitHGS(h_editGS.text, 1);
+				resetUIvalues();
+			};
+
+	///////////////////////////////////////////
+	// START VERTICAL GRID STEP MEASUREMENTS //
+	///////////////////////////////////////////
+	var myVerticalGridGroup = myWindow.add ("panel", undefined, "HEIGHT");
+		myVerticalGridGroup.orientation = "column";
+		
+		var v_row1 = myVerticalGridGroup.add ("group");
+			v_row1.orientation = "row";
+
+			v_row1.add ("statictext", undefined, "Current GS: ");
+		var v_editGS = v_row1.add ("edittext", undefined, GS.VGS);
+			v_editGS.characters = 6;
+		var v_row1_unit = v_row1.add ("statictext", undefined, current_measure_unit);
+
+		var v_row1_but_set = v_row1.add ("button", undefined, "Set");
+			v_row1_but_set.onClick = function () {
+				setVGS(v_editGS.text);
+				resetUIvalues();
+			};
+
+		var v_row1_but_fitMinus = v_row1.add ("button", undefined, "Fit - 1");
+			v_row1_but_fitMinus.onClick = function () {
+				fitVGS(v_editGS.text, -1);
+				resetUIvalues();
+			};
+
+		var v_row1_but_fit = v_row1.add ("button", undefined, "Fit");
+			v_row1_but_fit.onClick = function () {
+				fitVGS(v_editGS.text, 0);
+				resetUIvalues();
+			};
+
+		var v_row1_but_fitPlus = v_row1.add ("button", undefined, "Fit + 1");
+			v_row1_but_fitPlus.onClick = function () {
+				fitVGS(v_editGS.text, 1);
 				resetUIvalues();
 			};
 
@@ -110,24 +145,24 @@ function resetSettings(){
 	DOC.layoutAdjustmentPreferences.enableLayoutAdjustment = ORIGINAL_LAYOUTADJ;
 }
 
-function fitHGS(myGridStep){
+function fitHGS(myGridStep, addSubtract){
 	var mySubdevision = DOC.gridPreferences.horizontalGridSubdivision;
 	var myGS = parseFloat(myGridStep);
-	var countGS = doRound(DOC_SIZE.W/myGS,0);
+	var countGS = doRound(DOC_SIZE.W/myGS,0) + addSubtract;
 	var fitGS = doRound(DOC_SIZE.W/countGS,3);
 	setHGS(fitGS);
 }
 
-function fitVGS(myGridStep){
+function fitVGS(myGridStep, addSubtract){
 	var mySubdevision = DOC.gridPreferences.verticalGridSubdivision;
 	var myGS = parseFloat(myGridStep);
-	var countGS = doRound(DOC_SIZE.H/myGS,0);
+	var countGS = doRound(DOC_SIZE.H/myGS,0) + addSubtract;
 	var fitGS = doRound(DOC_SIZE.H/countGS,3);
 	setVGS(fitGS);
 }
 
 function setHGS(myGridStep){
-	var mySubdevision = DOC.gridPreferences.verticalGridSubdivision;
+	var mySubdevision = DOC.gridPreferences.horizontalGridSubdivision;
 	var myGS = parseFloat(myGridStep);
 	DOC.gridPreferences.horizontalGridlineDivision = doRound(myGS * mySubdevision, 6);
 }
@@ -136,10 +171,6 @@ function setVGS(myGridStep){
 	var myGS = parseFloat(myGridStep);
 	var mySubdevision = DOC.gridPreferences.verticalGridSubdivision;
 	DOC.gridPreferences.verticalGridlineDivision = doRound(myGS * mySubdevision, 6);
-}
-
-function resetUIvalues(){
-	alert("Reset UI values here");
 }
 
 function getGridStep(){
