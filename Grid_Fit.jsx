@@ -15,6 +15,10 @@ try {
 	//global vars
 	var DOC = app.activeDocument;
 	var DOC_SIZE = { W : DOC.documentPreferences.pageWidth, H : DOC.documentPreferences.pageHeight};
+	
+	var SPREAD = app.activeWindow.activeSpread;
+	var SPREAD_SIZE = getBoundDimensions(getSpreadBounds(SPREAD));
+	
 	var ORIGINAL_RULERS = setRulerUnits(DOC, [MeasurementUnits.MILLIMETERS, MeasurementUnits.MILLIMETERS]); // Safe old ruler units whils setting to points
 	var ORIGINAL_GRIDSHOWN = DOC.gridPreferences.documentGridShown;
 	var ORIGINAL_LAYOUTADJ = DOC.layoutAdjustmentPreferences.enableLayoutAdjustment;
@@ -34,6 +38,28 @@ try {
 } catch(err) {
 	alert(err.description);
 	exit();
+}
+
+function getBoundDimensions(myBounds){
+	var boundsWidth  = myBounds[3]-myBounds[1];
+    var boundsHeight = myBounds[2]-myBounds[0];
+    return { W : boundsWidth, H : boundsHeight};
+}
+
+function getSpreadBounds(mySpread){
+	// A function copied from the coverbuilder API
+    // This functions returns the bounds of the spread in current measure units
+    try{
+        var firstPage = mySpread.pages[0];
+        var lastPage  = mySpread.pages[mySpread.pages.length-1];
+        var firstPageBounds = firstPage.bounds; //in the format [y1, x1, y2, x2], top-left and bottom-right
+        var lastPageBounds  = lastPage.bounds;
+
+        return [firstPageBounds[0],firstPageBounds[1],lastPageBounds[2],lastPageBounds[3]];
+    } catch(err) {
+        alert(err);
+        return null;
+    }
 }
 
 function showUI(){
@@ -148,16 +174,16 @@ function resetSettings(){
 function fitHGS(myGridStep, addSubtract){
 	var mySubdevision = DOC.gridPreferences.horizontalGridSubdivision;
 	var myGS = parseFloat(myGridStep);
-	var countGS = doRound(DOC_SIZE.W/myGS,0) + addSubtract;
-	var fitGS = doRound(DOC_SIZE.W/countGS,3);
+	var countGS = doRound(SPREAD_SIZE.W/myGS,0) + addSubtract;
+	var fitGS = doRound(SPREAD_SIZE.W/countGS,3);
 	setHGS(fitGS);
 }
 
 function fitVGS(myGridStep, addSubtract){
 	var mySubdevision = DOC.gridPreferences.verticalGridSubdivision;
 	var myGS = parseFloat(myGridStep);
-	var countGS = doRound(DOC_SIZE.H/myGS,0) + addSubtract;
-	var fitGS = doRound(DOC_SIZE.H/countGS,3);
+	var countGS = doRound(SPREAD_SIZE.H/myGS,0) + addSubtract;
+	var fitGS = doRound(SPREAD_SIZE.H/countGS,3);
 	setVGS(fitGS);
 }
 

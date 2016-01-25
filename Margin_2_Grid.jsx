@@ -295,3 +295,24 @@ function addGS_2_Page(PAGE, SIDE, STEP){
 
 }
 
+// CoverBuilder Functions
+//------------------------
+function doRound(myNum, roundDec) {
+	var roundMulit = Math.pow(10,roundDec);
+	return Math.round(myNum*roundMulit)/roundMulit;
+}
+
+function setRulerUnits(DOC, RulerUnitsXY){
+    var originalUnits = [DOC.viewPreferences.horizontalMeasurementUnits, DOC.viewPreferences.verticalMeasurementUnits];
+
+    DOC.viewPreferences.horizontalMeasurementUnits = RulerUnitsXY[0];
+    DOC.viewPreferences.verticalMeasurementUnits = RulerUnitsXY[1];
+
+    return originalUnits;
+}
+
+
+// EOF
+
+
+
