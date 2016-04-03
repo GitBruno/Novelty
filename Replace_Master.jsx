@@ -49,7 +49,7 @@ if(myResult == true){
 		myCounter++;
 	} while (myCounter < change_page.length);
 	
-	alert("Replaced "+(myCounter+1)+" masters!");
+	alert("Replaced " + change_page.length + " masters!");
 } else {
 	exit();
 }
