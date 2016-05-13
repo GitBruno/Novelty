@@ -19,6 +19,26 @@ NOTE: This script uses the bounds to set the size and therefore does not work in
 
 // Would be good if some of these can be undefined:
 
+var Standard = {
+    moveSingleCharacters  : false,     // Boolean
+    moveSingleWords       : true,      // Boolean
+    centerText            : true,      // Boolean
+    removeIndents         : true,      // Boolean
+    textFrameInsetSpacing : 2,         // float: points
+    heightGain            : 0.5,       // float: points. Adjust the height of the frame
+    textBaselineShift     : 1.5,       // float: points. Adjust the vertical alignment inside the frame
+    frameBaselineShift    : 0,         // float: points. Adjust the vertical position of the inline frame
+    objectStyleName       : "None",  // String
+    strokeWeight          : 0,         // float: points.
+    strokeColor           : "None",    // String: Swatch name or None
+    strokeTint            : [0,0],     // Array: percentage [float: Min, float: Max]
+    fillColor             : "None",  // String: Swatch name
+    fillTint              : [0,0],     // Array: percentage [float: Min, float: Max]
+    alignToBaseline       : false,     // Boolean: True only works without rotation (Frame will be aligned to baseline).
+    rotation              : [-3,5],    // Array: rotation [float: Min, float: Max]
+    name                  : "Standard" // String
+};
+
 var WB_Cutwords = {
     moveSingleCharacters  : false,     // Boolean
     moveSingleWords       : false,      // Boolean
@@ -61,7 +81,7 @@ var WB_Crossword = {
     name                  : "WordBurger_CutWords" // String
 };
 
-var Settings = WB_Cutwords;
+var Settings = Standard;
 
 var userNeverGotObjectStyleAlert = true; // So we only get the warning once.
 
