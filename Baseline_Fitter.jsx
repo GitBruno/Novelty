@@ -76,7 +76,7 @@ function main(){
 	if(app.documents.length != 0){
 		myDoc = app.activeDocument;
 		if(app.selection.length != 0){
-			if (myDoc.selection[0].constructor.name != "Text") {
+			if (!/^(Text|Paragraph)$/.test(myDoc.selection[0].constructor.name)) {
 				alert ("This is a "+app.activeDocument.selection[0].constructor.name+"\nPlease select some text");
 				exit(0);
 			}else{
