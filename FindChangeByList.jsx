@@ -148,6 +148,8 @@ function myFindChangeByList(myObject){
 			} while(myFindChangeFile.eof == false);
 			myFindChangeFile.close();
 		}
+	} else {
+		alert("Can't find the FindChangeList.txt");
 	}
 }
 function myFindText(myObject, myFindPreferences, myChangePreferences, myFindChangeOptions){

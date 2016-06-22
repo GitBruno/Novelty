@@ -27,17 +27,17 @@
 //
 //{findWhat:"\\s+"}
 //
-grep	{findWhat:"(?<= ) +"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all double spaces and replace with single spaces.
-grep	{findWhat:"(?<=\r)[\t ]+"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all returns followed by a space And replace with single returns.
-grep	{findWhat:" (?=\r)"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all returns followed by a space and replace with single returns.
-grep	{findWhat:"(?<=\t)\t+"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all double tab characters and replace with single tab characters.
-grep	{findWhat:"\r(?=\t)"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all returns followed by a tab character and replace with single returns.
-grep	{findWhat:"(?<=\t)\r"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all tabs followed by a return character and replace with single returns.
-grep	{findWhat:"(?<=\r)\r+"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all double returns and replace with single returns.
-text	{findWhat:" - "}	{changeTo:"~<^=~<"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all space-dash-space and replace with an thin spaced en dash.
+
+grep	{findWhat:"(?<=[[:blank:]])[[:blank:]]+"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all double spaces and replace with single spaces.
+grep	{findWhat:"(?<=\\r)[[:blank:]]+"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all returns followed by a space And replace with single returns.
+grep	{findWhat:"[[:blank:]]+(?=\\r)"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all returns followed by a space and replace with single returns.
+grep	{findWhat:"(?<=\\t)\\t+"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all double tab characters and replace with single tab characters.
+grep	{findWhat:"\\r(?=\\t)"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all returns followed by a tab character and replace with single returns.
+grep	{findWhat:"(?<=\\t)\\r"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all tabs followed by a return character and replace with single returns.
+grep	{findWhat:"(?<=\\r)\\r+"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all double returns and replace with single returns.
+text	{findWhat:"[[:blank:]]-[[:blank:]]"}	{changeTo:"~<^=~<"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all space-dash-space and replace with an thin spaced en dash.
 text	{findWhat:"--"}	{changeTo:"~<^_~<"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all dash-dash and replace with an thin spaced em dash.
-grep    {findWhat:"(\\.\\s\\.\\s\\.)|(~e)"} {changeTo:".~s.~s."}   {includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false} Find all ellipsis and replace with fixed width non breaking spaced ellipsis.
-grep    {findWhat:"\\s\\.\\s\\.\\s\\."} {changeTo:"~s.~s.~s."}   {includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false} Find all ellipsis and replace with fixed width non breaking space before ellipsis.
-grep    {findWhat:"\\.\\s\\.\\s\\.\\s"} {changeTo:".~s.~s.~s"}   {includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false} Find all ellipsis and replace with fixed width non breaking space after ellipsis.
-
-
+// Style ellipsis
+grep	{findWhat:"(\\.(\\s)?\\.(\\s)?\\.)|(~e)"}	{changeTo:".~s.~s."}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all ellipsis and replace with fixed width non breaking spaced ellipsis.
+grep	{findWhat:"[[:blank:]]\\.[[:blank:]]\\.[[:blank:]]\\."}	{changeTo:"~s.~s.~s."}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all ellipsis and replace with fixed width non breaking space before ellipsis.
+grep	{findWhat:"\\.[[:blank:]]\\.[[:blank:]]\\.[[:blank:]]"}	{changeTo:".~s.~s.~s"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all ellipsis and replace with fixed width non breaking space after ellipsis.
