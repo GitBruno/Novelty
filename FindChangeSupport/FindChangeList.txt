@@ -1,0 +1,43 @@
+//FindChangeList.txt
+//A support file for the InDesign JavaScript FindChangeByList.jsx
+//
+//This data file is tab-delimited, with carriage returns separating records.
+//
+//The format of each record in the file is:
+//findType<tab>findProperties<tab>changeProperties<tab>findChangeOptions<tab>description
+//
+//Where:
+//<tab> is a tab character
+//findType is "text", "grep", or "glyph" (this sets the type of find/change operation to use).
+//findProperties is a properties record (as text) of the find preferences.
+//changeProperties is a properties record (as text) of the change preferences.
+//findChangeOptions is a properties record (as text) of the find/change options.
+//description is a description of the find/change operation
+//
+//Very simple example:
+//text	{findWhat:"--"}	{changeTo:"^_"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all double dashes and replace with an em dash.
+//
+//More complex example:
+//text	{findWhat:"^9^9.^9^9"}	{appliedCharacterStyle:"price"}	{include footnotes:true, include master pages:true, include hidden layers:true, whole word:false}	Find $10.00 to $99.99 and apply the character style "price".
+//
+//All InDesign search metacharacters are allowed in the "findWhat" and "changeTo" properties for findTextPreferences and changeTextPreferences.
+//
+//If you enter backslashes in the findWhat property of the findGrepPreferences object, they must be "escaped"
+//as shown in the example below:
+//
+//{findWhat:"\\s+"}
+//
+grep	{findWhat:"(?<= ) +"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all double spaces and replace with single spaces.
+grep	{findWhat:"(?<=\r)[\t ]+"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all returns followed by a space And replace with single returns.
+grep	{findWhat:" (?=\r)"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all returns followed by a space and replace with single returns.
+grep	{findWhat:"(?<=\t)\t+"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all double tab characters and replace with single tab characters.
+grep	{findWhat:"\r(?=\t)"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all returns followed by a tab character and replace with single returns.
+grep	{findWhat:"(?<=\t)\r"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all tabs followed by a return character and replace with single returns.
+grep	{findWhat:"(?<=\r)\r+"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all double returns and replace with single returns.
+text	{findWhat:" - "}	{changeTo:"~<^=~<"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all space-dash-space and replace with an thin spaced en dash.
+text	{findWhat:"--"}	{changeTo:"~<^_~<"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all dash-dash and replace with an thin spaced em dash.
+grep    {findWhat:"(\\.\\s\\.\\s\\.)|(~e)"} {changeTo:".~s.~s."}   {includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false} Find all ellipsis and replace with fixed width non breaking spaced ellipsis.
+grep    {findWhat:"\\s\\.\\s\\.\\s\\."} {changeTo:"~s.~s.~s."}   {includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false} Find all ellipsis and replace with fixed width non breaking space before ellipsis.
+grep    {findWhat:"\\.\\s\\.\\s\\.\\s"} {changeTo:".~s.~s.~s"}   {includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false} Find all ellipsis and replace with fixed width non breaking space after ellipsis.
+
+
