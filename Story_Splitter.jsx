@@ -80,8 +80,8 @@ if(app.documents.length != 0){
                               with(borderPanels.add()){
                                    var mySplitOptions = radiobuttonGroups.add();
                                    with(mySplitOptions){
-                                        radiobuttonControls.add({staticLabel:"Split All Frames", checkedState:true});
-                                        radiobuttonControls.add({staticLabel:"Split Before Selected Frame"});
+                                        radiobuttonControls.add({staticLabel:"Split All Frames"});
+                                        radiobuttonControls.add({staticLabel:"Split Before Selected Frame", checkedState:true});
                                         radiobuttonControls.add({staticLabel:"Split After Selected Frame"});
                                    }
                               }
