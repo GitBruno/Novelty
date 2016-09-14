@@ -1,7 +1,7 @@
 /*
 Text_2_Frame.jsx
 
-Version 1.1
+Version 1.2
 
 An InDesign CS5 Javascript
 Bruno Herfst 2015
@@ -11,7 +11,7 @@ Rotate for example.
 
 NOTE: This script uses the bounds to set the size and therefore does not work inside
       text frames that already have been rotated.
-      It does not work with obkect srtyles in folers
+      It does not work with obkect srtyles in folders
 
 */
 
@@ -26,17 +26,39 @@ var Standard = {
     removeIndents         : true,      // Boolean
     textFrameInsetSpacing : 2,         // float: points
     heightGain            : 0.5,       // float: points. Adjust the height of the frame
-    textBaselineShift     : 1.5,       // float: points. Adjust the vertical alignment inside the frame
+    textBaselineShift     : [1.5,1.5], // float: points. Adjust the vertical alignment inside the frame
     frameBaselineShift    : 0,         // float: points. Adjust the vertical position of the inline frame
-    objectStyleName       : "None",  // String
+    objectStyleName       : undefined, // String || undefined
     strokeWeight          : 0,         // float: points.
     strokeColor           : "None",    // String: Swatch name or None
     strokeTint            : [0,0],     // Array: percentage [float: Min, float: Max]
-    fillColor             : "None",  // String: Swatch name
+    fillColor             : "None",    // String: Swatch name
     fillTint              : [0,0],     // Array: percentage [float: Min, float: Max]
     alignToBaseline       : false,     // Boolean: True only works without rotation (Frame will be aligned to baseline).
     rotation              : [-3,5],    // Array: rotation [float: Min, float: Max]
+    fontSizeAdjust        : [0,0],     // Array: Font size adjustment [float: Min, float: Max]
     name                  : "Standard" // String
+};
+
+var Devil_Poems = {
+    moveSingleCharacters  : false,     // Boolean
+    moveSingleWords       : true,      // Boolean
+    centerText            : false,     // Boolean
+    removeIndents         : true,      // Boolean
+    textFrameInsetSpacing : 0,         // float: points
+    heightGain            : 0,         // float: points. Adjust the height of the frame
+    textBaselineShift     : [-0.5,0.5],         // float: points. Adjust the vertical alignment inside the frame
+    frameBaselineShift    : 5,         // float: points. Adjust the vertical position of the inline frame
+    objectStyleName       : undefined, // String || undefined
+    strokeWeight          : 0,         // float: points.
+    strokeColor           : "None",    // String: Swatch name or None
+    strokeTint            : [0,0],     // Array: percentage [float: Min, float: Max]
+    fillColor             : "None",    // String: Swatch name
+    fillTint              : [0,0],     // Array: percentage [float: Min, float: Max]
+    alignToBaseline       : false,     // Boolean: Frame will be aligned to baseline from now on.
+    rotation              : [-1.75,2.5], // Array: rotation [float: Min, float: Max]
+    fontSizeAdjust        : [-2.5,1],    // Array: Font size adjustment [float: Min, float: Max]
+    name                  : "Devil_Poems" // String
 };
 
 var WB_Cutwords = {
@@ -46,17 +68,18 @@ var WB_Cutwords = {
     removeIndents         : true,      // Boolean
     textFrameInsetSpacing : 2,         // float: points
     heightGain            : 0.5,       // float: points. Adjust the height of the frame
-    textBaselineShift     : 1.5,       // float: points. Adjust the vertical alignment inside the frame
+    textBaselineShift     : [1.5,1.5], // float: points. Adjust the vertical alignment inside the frame
     //textBaselineShift     : 4.5,       // float: points. Adjust the vertical alignment inside the frame
     frameBaselineShift    : 0,         // float: points. Adjust the vertical position of the inline frame
-    objectStyleName       : "WB_Cut_DropShadow", // String
+    objectStyleName       : "WB_Cut_DropShadow", // String || undefined
     strokeWeight          : 0,         // float: points.
-    strokeColor           : "None",    // String: Swatch name or None
+    strokeColor           : "[None]",    // String: Swatch name or None
     strokeTint            : [0,0], // Array: percentage [float: Min, float: Max]
     fillColor             : "Black",   // String: Swatch name
     fillTint              : [6,15],    // Array: percentage [float: Min, float: Max]
     alignToBaseline       : false,     // Boolean: Frame will be aligned to baseline from now on.
     rotation              : [-3,5],    // Array: rotation [float: Min, float: Max]
+    fontSizeAdjust        : [0,0],     // Array: Font size adjustment [float: Min, float: Max]
     name                  : "WordBurger_CutWords" // String
 };
 
@@ -68,9 +91,9 @@ var WB_Crossword = {
     removeIndents         : true,      // Boolean
     textFrameInsetSpacing : 2,         // float: points
     heightGain            : 0.5,       // float: points. Adjust the height of the frame
-    textBaselineShift     : 0,         // float: points. Adjust the vertical alignment inside the frame
+    textBaselineShift     : [0,0],         // float: points. Adjust the vertical alignment inside the frame
     frameBaselineShift    : 0,         // float: points. Adjust the vertical position of the inline frame
-    objectStyleName       : "WB_CrosswordFrame", // String
+    objectStyleName       : "WB_CrosswordFrame", // String || undefined
     strokeWeight          : 0,         // float: points.
     strokeColor           : "None",    // String: Swatch name or None
     strokeTint            : [0,0],     // Array: percentage [float: Min, float: Max]
@@ -78,10 +101,11 @@ var WB_Crossword = {
     fillTint              : [100,100], // Array: percentage [float: Min, float: Max]
     alignToBaseline       : false,     // Boolean: Frame will be aligned to baseline from now on.
     rotation              : [0,0],     // Array: rotation [float: Min, float: Max]
+    fontSizeAdjust        : [0,0],     // Array: Font size adjustment [float: Min, float: Max]
     name                  : "WordBurger_CutWords" // String
 };
 
-var Settings = Standard;
+var Settings = Devil_Poems;
 
 var userNeverGotObjectStyleAlert = true; // So we only get the warning once.
 
@@ -122,7 +146,40 @@ if(app.documents.length != 0){
     alert("Please open a document and try again.");
 }
 
+
+function setRedraw(myOriginalPrefs){
+    // This function is a rewite of forceRedraw by by Jon S. Winters
+    // http://extendscript.blogspot.com.au/2009/09/force-redraw-adobe-indesign.html
+
+    //-- Store and then clear the redraw preferences and original view setting.
+    //-- The view setting will be changed to force the redraw to happen.
+    var myOldRedrawPrefs = {enableRedraw : app.scriptPreferences.enableRedraw, viewDisplaySetting : app.activeWindow.viewDisplaySetting}
+
+    if (typeof myOriginalPrefs != "undefined") { // Reset origial settings
+        if( myOriginalPrefs.hasOwnProperty('enableRedraw') && myOriginalPrefs.hasOwnProperty('viewDisplaySetting') ){
+            // reset original redraw preferences
+            app.activeWindow.viewDisplaySetting = myOriginalPrefs.viewDisplaySetting;
+            app.scriptPreferences.enableRedraw = myOriginalPrefs.enableRedraw;
+            return myOldRedrawPrefs;
+        }
+    }
+
+    app.scriptPreferences.enableRedraw = false;
+
+    //-- If the view is anything but optimized, switch to optimized. It is FAST but you can't see anything
+    if ( myOldRedrawPrefs.viewDisplaySetting != ViewDisplaySettings.OPTIMIZED ) {
+        app.activeWindow.viewDisplaySetting = ViewDisplaySettings.OPTIMIZED ;
+    } else { //-- Otherwise switch to Typical as it is the second fastest.
+        app.activeWindow.viewDisplaySetting = ViewDisplaySettings.TYPICAL ;
+    }
+
+    return myOldRedrawPrefs;
+}
+
 function main(selection){
+    // This makes sure it runs a bit quicker
+    var myOriginalRedraw = setRedraw();
+
     // Set rulers to points
     setRulerUnits([MeasurementUnits.POINTS,MeasurementUnits.POINTS]);
 
@@ -146,14 +203,11 @@ function main(selection){
     selection.contents = "";
 
     tf.texts[0].alignToBaseline = Settings.alignToBaseline;
+
     tf.texts[0].justification = Justification.CENTER_ALIGN;
 
     if(Settings.removeIndents){
         removeIndents(tf);
-    }
-
-    if(Math.abs(Settings.textBaselineShift) > 0){
-        tf.texts[0].baselineShift += Settings.textBaselineShift;
     }
 
     tf.textFramePreferences.firstBaselineOffset   = FirstBaseline.X_HEIGHT;
@@ -181,16 +235,24 @@ function main(selection){
 
     // Align frame to center using baselineShift
     var story = selection.parentStory;
+
     var seltf = story.characters[(selection.index - 1)];
 
-    seltf.baselineShift = -(bottomInset + Settings.strokeWeight + Settings.textBaselineShift) + Settings.frameBaselineShift;
+    seltf.baselineShift = -(bottomInset + Settings.strokeWeight + ((Settings.textBaselineShift[0] + Settings.textBaselineShift[0]) /2) ) + Settings.frameBaselineShift;
 
-    try {
-        tf.appliedObjectStyle = myDoc.objectStyles.item(Settings.objectStyleName);
-    } catch(err){
-        if(userNeverGotObjectStyleAlert){
-            alert("Could not set object Style");
-            userNeverGotObjectStyleAlert = false;
+    for (var i = 0; i < tf.characters.length; i++) {
+        tf.characters[i].pointSize     += randomInRange(Settings.fontSizeAdjust[0],    Settings.fontSizeAdjust[1]);
+        tf.characters[i].baselineShift += randomInRange(Settings.textBaselineShift[0], Settings.textBaselineShift[1]);
+    }
+
+    if(Settings.objectStyleName) {
+        try {
+            tf.appliedObjectStyle = myDoc.objectStyles.item(Settings.objectStyleName);
+        } catch(err){
+            if(userNeverGotObjectStyleAlert){
+                alert("Could not set object Style");
+                userNeverGotObjectStyleAlert = false;
+            }
         }
     }
 
@@ -198,6 +260,7 @@ function main(selection){
     fixPreviewBug(selection.parentTextFrames[0]);
     // Reset rulers
     setRulerUnits(originalRulerUnits);
+    setRedraw(myOriginalRedraw);
 }
 
 function getFrameDimensions(frame){
