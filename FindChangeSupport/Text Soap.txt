@@ -30,8 +30,8 @@
 //
 
 grep	{findWhat:"(?<=[[:blank:]])[[:blank:]]+"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all double spaces and replace with single spaces.
-grep	{findWhat:"(?<=\\r)[[:blank:]]+"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all returns followed by a space And replace with single returns.
-grep	{findWhat:"[[:blank:]]+(?=\\r)"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all returns followed by a space and replace with single returns.
+grep	{findWhat:"(?<=\\r)[[:blank:]]+"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Removed all wordspaces that precede a return.
+grep	{findWhat:"[[:blank:]]+(?=\\r)"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Removed all wordspaces that follow a return.
 grep	{findWhat:"(?<=\\t)\\t+"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all double tab characters and replace with single tab characters.
 grep	{findWhat:"\\r(?=\\t)"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all returns followed by a tab character and replace with single returns.
 grep	{findWhat:"(?<=\\t)\\r"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all tabs followed by a return character and replace with single returns.
@@ -48,6 +48,6 @@ grep	{findWhat:"[[:blank:]]\\.[[:blank:]]\\.[[:blank:]]\\."}	{changeTo:"~s.~s.~s
 grep	{findWhat:"\\.[[:blank:]]\\.[[:blank:]]\\.[[:blank:]]"}	{changeTo:".~s.~s.~s"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all ellipsis and replace with fixed width non breaking space after ellipsis.
 grep	{findWhat:"\\>\\.~s\\.~s\\."}	{changeTo:"~s.~s.~s."}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all elipsis that that follow a word and add thin space
 grep	{findWhat:"\\.~s\\.~s\\.\\<"}	{changeTo:".~s.~s.~s"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all elipsis that are followed by a word and add thin space
-// Force smartquotes (Make sure InDesign smart quotes is turned on!)
-text	{findWhat:"\'"}	{changeTo:"\'"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Replace single quotes
-text	{findWhat:"\""}	{changeTo:"\""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Replace double quotes
+// Force smartquotes (Make sure InDesign smart quotes is turned on!) Don't do this on large documents it's too slow!
+//text	{findWhat:"\'"}	{changeTo:"\'"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Replace single quotes
+//text	{findWhat:"\""}	{changeTo:"\""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Replace double quotes
