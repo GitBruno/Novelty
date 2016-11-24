@@ -1,0 +1,12 @@
+﻿--- Lines starting with three hyphens are ignored, --- can be used for comments
+--- Empty lines are ignored, too
+
+===Regular
+g,	85
+f\?	135
+
+===Regular	Italic
+['"]A	-210
+
+===Italic	Regular
+t['"]	100

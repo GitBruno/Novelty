@@ -1,0 +1,6 @@
+--- Lines starting with three hyphens are ignored, --- can be used for comments
+--- Empty lines are ignored, too
+
+===Regular
+f \u		185
+['"] \u		120

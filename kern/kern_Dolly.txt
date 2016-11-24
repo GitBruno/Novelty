@@ -1,0 +1,11 @@
+﻿--- Lines starting with three hyphens are ignored, --- can be used for comments
+--- Empty lines are ignored, too
+
+===Roman
+[er]y	35
+er	20
+to	5
+ll	10
+[hnl]e	-5
+ga	-10
+[oe][oe]	-5

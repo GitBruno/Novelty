@@ -1,0 +1,133 @@
+﻿--- Lines starting with three hyphens are ignored, --- can be used for comments
+--- Empty lines are ignored, too
+
+===Regular
+uT			-160
+-\*			-160
+[VW]-			-120
+T[-\x{2013}]		-135
+[-\x{2013}]T		-100
+~_~_			-100
+/[/.]			-100
+\*[-\x{2011}]		-100
+/A			-90
+[-\x{2013}][VWY]		-80
+\x{2019}[,.]		-80
+T/			-80
+oW			-80
+[VW]s			-60
+[-\x{2013}]A		-40
+k-			-40
+/[\l]			-40
+-J			-40
+\.\x{2019}	-40
+-w			-20
+[ij]\x{2019}		10
+:/			20
+\x{2019}[BCDEFHIKLMNPRTU]		50
+\w\(			60
+\x{2018}/		60
+/\x{2018}		120
+
+
+--- Any pair of quotes, any quote followed by ?
+["']['"?]			50
+
+--- Apostrophe used as soft sign (transliterated Cyrillic)
+\x{2019}[cč]		-40
+
+--- The following are needed for French -- apostrophe followed by letter
+\x{2019}A			-45
+
+--- 0 is correct: this cancels Adobe's ridiculous kerning
+\x{2019}[AÂdst]		0
+\x{2019}[[=a=][=e=][=o=]œ]	20
+[ccé][\x{2019}\x{201D}]	35
+\x{2019}[[=u=][=i=]]	50
+\x{2019}h			80
+\x{2019}[EÉIU]		100
+
+--- The following depend on three characters: in "f+space+[VWY}" there's not enough space between f and VWY
+f [VWY\x{201C}\x{2018}]	40
+---\.\x20[VW]		-160
+
+--- This one is similar, but kerns after the space rather than before it
+(?<=f) [VWY\x{201C}\x{2018}]	40
+
+--- Reduce space in A. W
+(?<=A)\. W		-160
+(?<=a)\sV		-120
+
+
+===tabular_lining	Regular
+7~=	-20
+7[A\.]	-100
+
+===Italic
+T-			-135
+T\x{0259}		-90
+-[TW]			-100
+-Y			-80
+\x{2019}[[=a=][=e=][=o=]œ]	20
+\x{2019}[[=u=]]		50
+\x{2019}s		30
+\x{2019}[[=i=]]	100
+
+\x{2019}[IEOU]	100
+
+
+===Semibold
+-A		-80
+\x{2019}s	15
+
+===Semibold Italic
+\x{2019}[[=a=][=e=][=o=]œ]	20
+
+===Italic	Regular
+f\)		180
+V\x{2019}		140
+[CF]\)		100
+[ld][’)]		100
+\l\x{2019}		90
+[grv][:;]		80
+\l\(		60
+[Vćilt]\)		60
+[DPbcders][:;]	60
+\l[:;]		40
+[dl]\]		40
+
+===Regular	Italic
+/A	-80
+\(V			-60
+r,		-60
+
+===Regular	super
+f[123678]	160
+f[45]		140
+f[09]		200
+[VI]e		0
+[dl][\x{2019}\x{201D}]	60
+\x{2019}~F	100
+
+
+===Regular	otsuper
+[.,]\d	-80
+
+===Regular	sub
+[VW][\l\d]	-160
+[IH]\d		-20
+P\d		-80
+P[acegijmnopqrsuvwxyz]	-130
+--- [aehiklmntuxz][ij]	40
+
+===sub	Regular
+f[[:punct:]]	150
+
+===Italic	super
+r\d		80
+Ve	50
+Xe	10
+
+
+===Italic	sub
+[IH][l\d]		-60

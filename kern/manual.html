@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Scripted custom kerning tables | Peter Kahrel</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-Language" content="en" />
+	<meta http-equiv="keywords" content="custom, customise, customize, define, kern, kerning, kerning table, kerning tables, indesign, javascript, cs3, cs4, cs5, cs6, cc, free, script, scripts, free scripts, peter, kahrel, peter kahrel"/>
+	<meta name="author" content="Peter Kahrel" />
+	<meta name="copyright" content="Peter Kahrel" />
+	<meta name="robots" content="ALL" />
+	<meta http-equiv="description" content="InDesign won't let you edit a font's kerning table. The script works around this limitation."/>
+	<link href="../styles/peter_basic.css" rel="styleSheet" type="text/css"/>
+</head>
+
+<body class="centre_column">
+<div id="container">
+
+<h1>Adjust kerning</h1>
+<p>It's not possible in InDesign to adjust a font's kerning table, which is a shame because that's an area where even the best-designed fonts leave some space for improvement -- and these improvements are relatively easy to implement.</p>
+<p>Apart from possible shortcomings in a font's kerning table, a limitation of the traditional approach to kerning is that the scope of a font's kerning table is just that font; it's not possible for a font to define kerning between its own characters and characters from another font. This means that nothing can be done about clashes of pairs such as an italic f followed by a roman closing parenthesis and the gaping space between letters such as P, V, and W and a following subscripted letter or digit.</p>
+
+<h3>The script</h3>
+<p>The script described here deals with these problems: it allows you to create tables that specify kern values not only for characters within a font, but also for characters set in different font styles. The script collects the names of the typefaces ('font families') in a document, then reads the user-defined kerning data from a file and applies these data to the document.</p>
+<p>Kerning data are stored in a text file. The structure of such a kern data file is simple:</p>
+<pre>===Regular
+Ws	-60
+-T	-100</pre>
+<p>The first line denotes a font style; the script identifies font styles by the three <cite>=</cite> symbols. Under this heading follow any number of kern instructions. Each instruction consists of a character pair (<cite>Ws</cite> and <cite>-T</cite> in the example) followed by a tab, followed by a kern value: positive numbers for positive kerning (loosening), negative values for tightening the space between two characters. The kern value is applied to the space between the two characters in the pair. (You can type more tabs between the characters and the kern value to line up the kerning values and make the file more readable.) <strong>Unicode characters</strong> can be entered either as characters (just copy and paste the characters from inDesign) or by their unicode numbers, using the format <strong>\x{0158}</strong>.</p>
+
+<p>A font style followed by any number of kern instructions make up a section. You can add more sections to cover other font styles and to deal with characters from different font styles. To kern character pairs in another font style, just list these under what's already in the file:</p>
+<pre>===Regular
+Ws	-60
+-T	-100
+
+
+===Italic
+T-	-135</pre>
+
+<p>The script ignores empty lines, so you can use them freely to make the file more readable.</p>
+<p><strong><a name="stylenames" id="stylenames"></a>Note</strong>: The names of font styles must be entered exactly as you see them in InDesign's Character panel. If a font family uses an italic font style called <cite>55&nbsp;Roman</cite>, then use that in the kerning file:</p>
+<pre>===55 Roman
+Ws	-80</pre>
+<p>To adjust the kerning between two characters from different font styles, type the two font styles after each other separated by a tab: </p>
+<pre>===Italic	Regular<br />
+f\)	35</pre>
+<p>In this example, the kerning between an italic <cite>f</cite> and a roman&nbsp;<cite>)</cite> is set to 35. The order in which you type the names of the font styles is important: turn them around in this example and the script will try to find a roman&nbsp;<cite>f</cite> followed by an italic&nbsp;<cite>)</cite>. <strong>Note</strong>: the closing parenthesis must be entered as <cite>\)</cite>. Other characters that need to be preceded by a backslash are <cite>()[]{}.~$^+=?</cite>.</p>
+<p>Spacing between full-size characters and super-/subscripts is dealt with similarly:</p>
+<pre>===Regular sub
+P1	-80
+P2	-80
+P3	-80
+
+
+===Italic super
+r1	30
+r2	30</pre>
+					
+<p>Use these words exactly as given here: <cite>sub</cite> for subscript and <cite>super</cite> for superscript. Note that any styling for the super- and subscripts is ignored: Regular and Italic in the two examples apply only to P and r, respectively. Here, super and sub match characters to which the normal super- and subscript formatting has been applied. To match characters formatted with OpenType superscript (or superior), use <cite>otsuper</cite> and <cite>otsub</cite>. (See below for a full list of <a href="#keywords">keywords</a>.)</p>
+<p>Another type of format recognised by the script is the figure style (tabular/proportional oldstyle/lining). For instance, this section fixes the space between <cite>7</cite> and a following  en-dash (<cite>~=</cite>) or dot (<cite>\.</cite>):</p>
+<pre>===tabular_lining	Regular
+7~=	-20
+7\.	-100</pre>
+<p>The forms of the four figure formats to use in the script are <cite>proportional_lining</cite>, <cite>proportional_oldstyle</cite>, <cite>tabular_lining</cite>, and <cite>tabular_oldstyle</cite>. <strong>Notes</strong>: (1) figure formats are handled only in roman (Regular); (2) figure formats are recognised only when the format has been set explicitly (locally or in styles): &quot;default formats&quot; are not processed.</p>
+Before continuing with more powerful kerning entries, we'll first deal with the names and locations of the kern data files.
+<h3>The kern data files</h3>
+<p>Kern data files are text files. They're are best kept in UTF-8 format (as the example, below). The <b>name</b> of the file is constructed around the name of a font family. If the script finds Helvetica in a document, it wants to read kerning data from a file called <cite>kern_Helvetica.txt</cite>. That's the way to name files: <cite>kern_</cite> followed by a font-family name followed by the extension <cite>.txt</cite>. Capitalisation can be ignored, but spaces, hyphens, underscores, etc. must be used exactly as you see in the font's name in InDesign. As to <b>location</b>, the script looks in the <a href="script-info.html#scriptlocations">script folder</a> for the data files.</p>
+<p><strong>Note</strong>: there's no need to have a data file for every font family in a document: the script just ignores font families for which it can't find a data file; when it finishes it does display a list of font families that it couldn't find a data file for.</p>
+
+<h3>Advanced searches</h3>
+<p>You can use GREP expressions in the search patterns in a data file. Use the standard InDesign format for these expressions. If you know InDesign's GREP formalism you needn't read any further.</p>
+<p>If you're not familiar with InDesign's GREP, here are a short outline and some simple examples to get you started. As you'll see, you don't need much knowledge of GREP to make your data file much more flexible.</p>
+<p>Take this fragment from a data file:</p>
+<pre>===Regular sub
+P1	-80
+P2	-80
+P3	-80
+
+
+===Italic super
+r1	30
+r2	30</pre>
+
+<p>This says that in the fontstyle Regular, <cite>P</cite> and following <cite>1</cite>, <cite>2</cite>, or <cite>3</cite> should be kerned together a bit; and that italic <cite>r</cite> and a superscript digit need some more space than what they get by default. In fact, this goes for all dgits, and we can use the catch-all <cite>\d</cite> for that (\d stands for 'any digit'). The fragment can then be reduced to this:</p>
+<pre>===Regular sub
+P\d	-80
+
+
+===Italic super
+r\d	30</pre>
+
+Here are some other character classes (or 'wildcards'):<br/><br/>
+<cite>\l</cite>		(slash and lower-case L): any lower-case letter<br/>
+<cite>\u</cite> 	any upper-case letter<br/>
+<cite>\w</cite>	any letter or digit<br/>
+
+<p>You can also define your own character classes. Anything enclosed by square brackets is considered a character class, and this is a flexible and useful tool. Here are some examples:</p>
+<pre>===Italic	Regular
+[rv][:;]	80
+
+
+===Regular sub
+P\d		-80
+[VWY][\d\l]	-60</pre>
+
+<p>The first line here makes the script look for an italic <cite>r</cite> or <cite>v</cite> followed by a roman <cite>:</cite> or <cite>;</cite> -- the search pattern in this one line finds four different instances: <cite>r:</cite>, <cite>r;</cite>, <cite>v:</cite>, and <cite>v;</cite>. The second instruction tells the script to find <cite>P</cite> followed by a subscripted digit; the third line reads "find V, W, and/or Y followed by a subscripted digit or a subscripted lower-case letter&quot;.</p>
+
+<h3><a name="kern_across_spaces" id="kern_across_spaces"></a>Kerning across spaces</h3>
+<p>The script sets the kerning between the first and second characters of the strings found in the text. You can make use of that to kern character in a certain context. For example, to add a bit of space after an upper-case letter when it's followed by a space and a T, use this:</p>
+<pre>\u T  30</pre>
+<p>The script finds \u[space]T, and applies the kerning to the insertion point between the capital and the space.</p>
+<p>Another example of creating context is the use of a lookbehind. In many fonts, in a name such as <cite>A. Wilson</cite>, there's too much space between the dot and the <cite>W</cite>. To set negative kerning between the dot and the W (and similarly shaped letters, such as V), use the following line:</p>
+
+<pre>(?&lt;=A)\. [VW]   -50</pre>
+
+<p>The script finds dot[space]W only when they're preceded by A, the A is not part of the found string. The period is therefore the first character of the found string, and script adds the kern value after it.</p>
+
+<h3>Kerning series of identical characters</h3>
+<p>To kern series of of identical characters, such as <cite>111111</cite>, you need to use a search string like the following:</p>
+<pre>1(?=1)	20</pre>
+<p>If you search for <cite>11</cite>, you end up with <cite>1 11 1 11</cite>, in other words, every other par of 1s is ignored. By using the so-called lookahead construction <cite>(?=&nbsp;)</cite> you avoid that problem.</p>
+<p>For more information on how to use GREP searches, see <a href="http://shop.oreilly.com/product/9780596156015.do?imm_mid=0aaa5b%26cmp=em-orm-email-update-2013-6-17-2-2-16">Grep in InDesign</a>.</p>
+<p>For an example of a kern data file and more examples of search criteria, see the file <a href="kern_Minion Pro.txt">kern_Minion Pro.txt</a> that I use myself. If you have any problem with data files or how to define certain search criteria, drop me a  <a href="mailto:kahrel@kahrel.plus.com">line</a>.</p>
+<h3><a name="keywords" id="keywords"></a>Keywords</h3>
+<p>The keywords you can use are of two types:</p>
+<p>1. Any font style associated with a typeface can be used in the script. To see which font styles a typeface has, select some text in an InDesign document and look in the Character panel (Ctrl/Cmd+T).</p>
+<p>2. These special keywords can be used as outlined above:</p>
+<p>super<br />
+				  otsuper<br />
+				  sub<br />
+				  otsub<br />
+				  proportional_lining<br />
+				  proportional_oldstyle<br />
+				  tabular_lining<br />
+			    tabular_oldstyle</p>
+<h3><a name="reset" id="reset"></a>Resetting selected kern pairs</h3>
+				<p>You might want to reset certain kern values to metric (&quot;automatic&quot;). For instance, if you used a GREP expression that matched more than you had thought, you might want to undo the effect of that particular expression, refine it, and run the improved version.</p>
+				<p>To reset an expression, simply repeat it and use <strong>M</strong> as the kerning value. Suppose you used this line in the data file to reduce the space between lower-case letters and upper-case V and W:</p>
+<pre>===Regular	Regular
+[\l][VW]	-60</pre>
+<p>You find that this doesn't work well (naturally) because of the ascender letters so you want to undo it. All you need to do is to use this line in your data file:</p>
+<pre>===Regular	Regular
+[\l][VW]	M</pre>
+<p>Instead of the kern value you use <strong>M</strong> (<strong>m</strong> also works). You could include this line in your data file, but as this is a one-off it may be better to create a separate, temporary, data file.</p>
+<hr />
+<h3>Version history</h3>
+<p>25 Mar. 2016: Added a note on the spelling of <a href="#stylenames">font style names</a>.</p>
+<p>24 Jan. 2015: Added a note on <a href="#kern_across_spaces">kerning across spacing</a> (script is unchanged).</p>
+<p>1 Jan. 2014: Added a note that to kern series of identical characters such as <cite>11111</cite>, you need to search <cite>1(?=1)</cite>. Added the option to target a selected story (in addition to the active document or all open documents).</p>
+<p>29 Oct. 2011: Fixed bug that sometimes caused confusion among typefaces.</p>
+<p>17 Nov. 2010: Fixed bug that prevented the kerning of different styles.</p>
+<p>4 Nov. 2010: Added possibility to reset selected kern pairs (proposed by Stephan M&ouml;bius; see <a href="#reset">here</a>).</p>
+<p>16 June 2010: Fixed issue with the sample date file (kern_Minion Pro.txt).</p>
+<p>24 May 2010: Added support for OpenType superior and inferior.</p>
+<hr />
+<h3>Useful script? Saved you lots of time?</h3>
+<p>Consider making a donation. To make a donation, please press the button below. This is Paypal's payment system; you don't need a Paypal account to use it: you can use several types/brands of credit and debit card.</p>
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+	<input type="hidden" name="cmd" value="_xclick"/>
+	<input type="hidden" name="business" value="kahrel@kahrel.plus.com"/>
+	<input type="hidden" name="item_name" value="Kerning"/>
+	<input type="hidden" name="buyer_credit_promo_code" value=""/>
+	<input type="hidden" name="buyer_credit_product_category" value=""/>
+	<input type="hidden" name="buyer_credit_shipping_method" value=""/>
+	<input type="hidden" name="buyer_credit_user_address_change" value=""/>
+	<input type="hidden" name="no_shipping" value="0"/>
+	<input type="hidden" name="no_note" value="1"/>
+	<input type="hidden" name="currency_code" value="GBP"/>
+	<input type="hidden" name="tax" value="0"/>
+	<input type="hidden" name="lc" value="GB"/>
+	<input type="hidden" name="bn" value="PP-DonationsBF"/>
+	<input type="image" src="http://www.kahrel.plus.com/button.jpg" name="submit" alt="Make payments with PayPal - it's fast, free and secure!"/>
+	<img alt="Peter Kahrel's paypal account" src="https://www.paypal.com/en_GB/i/scr/pixel.gif" width="1" height="1"/>
+</form>
+<hr />
+<p><a href="kern.zip">Download script</a></p>
+<p><a href="../indesignscripts.html">Back to script index</a></p>
+<p><a href="script-info.html#download_install">Installing and running scripts</a></p>
+<p>Questions, comments? <a href="../info.html">Get in touch</a></p>
+
+</div>
+</body>
+</html>

@@ -1,9 +1,10 @@
-// Baseline to Grid
+﻿// Baseline to Grid
 
 #target indesign;
 #targetengine "session";
 
 function getVerticalGridStep( DEVISION ){
+    DEVISION = parseFloat(DEVISION) || 0;
     var GRIDSTEP = doRound(DOC.gridPreferences.verticalGridlineDivision / DOC.gridPreferences.verticalGridSubdivision, 3);
     if (DEVISION == 0) return GRIDSTEP;
     return doRound( GRIDSTEP/DEVISION, 3);

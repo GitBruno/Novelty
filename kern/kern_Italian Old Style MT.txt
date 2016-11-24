@@ -1,0 +1,15 @@
+﻿--- Lines starting with three hyphens are ignored, --- can be used for comments
+--- Empty lines are ignored, too
+
+===Roman
+'[m]	-60
+[yw]~<	-80
+
+--- Ligatures
+(?<=f)l[o]	-35
+
+===Roman	Italic
+'[mt]	-60
+
+===Italic
+'[m]	-60

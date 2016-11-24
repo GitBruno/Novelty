@@ -1,0 +1,72 @@
+﻿--- Lines starting with three hyphens are ignored, --- can be used for comments
+--- Empty lines are ignored, too
+
+===Regular
+['"][ds]	-70
+[ywmr]o	-10
+rn	42
+fr	50
+fa	10
+st	10
+dr	20
+el -20
+y['"]	50
+[vh]e	-17
+er	12
+gi	20
+ke	-40
+['"]s	-40
+u[nr]	27
+nd	-22
+de	-8
+el	-6
+le	-10
+[oa][yw]	-20
+xc	-25
+Wa	-20
+Wa	-50
+[od]o	-15
+to	-5
+ft	30
+ar	5
+ta	10
+th	20
+uc	-10
+nc	-25
+ho	-30
+ty	5
+ue	-15
+[ao]u	-5
+wa	-15
+n['"]	-50
+pp	-10
+dd	-48
+ri	40
+id	-15
+dl	5
+ts	9
+si	7
+me	-8
+wd	-5
+po	10
+vi	25
+av	-15
+as	10
+ll	-10
+nk	-10
+ne	-20
+tn	40
+rt	25
+ou	-15
+ra	15
+br	25
+[wl]e	-15
+
+--- Ligatures
+(?<=f)l[o]	-20
+
+===SC
+74	-32
+40	-45
+78	17
+97	-15
