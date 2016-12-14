@@ -5,7 +5,7 @@ var action_Clear_Effects = app.menuActions.itemByID(67880)
 var action_Clear_Transparency = app.menuActions.itemByID(67897) 
 
 function clear(doc, clearEffects, clearTransparency){
-  if(action_Clear_Effects && action_Clear_Transparency && (clearTransparency || clearEffects)){  
+  if(clearTransparency || clearEffects){  
      for(var i=0; i<doc.spreads.length; i++){  
           doc.select(doc.spreads[i].allPageItems,SelectionOptions.REPLACE_WITH);
           if(action_Clear_Transparency.enabled && clearTransparency){  
@@ -20,6 +20,15 @@ function clear(doc, clearEffects, clearTransparency){
 }
 
 function main(doc){
+  if(! action_Clear_Effects ) {
+    alert("67880 (Clear Effects) is not a valis menu action anymore :(");
+    return;
+  }
+  if(! action_Clear_Transparency ) {
+    alert("67897 (Clear All Transparency) is not a valis menu action anymore :(");
+    return;
+  }
+
   var dlg = app.dialogs.add({name:"Quarkify ;)"});
   with(dlg.dialogColumns.add()){
     with(dialogRows.add()){
