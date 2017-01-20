@@ -66,7 +66,7 @@ function get_embedded_from( selection ){
 			default:
 				alert("Can't process elements of type " + type + "\nPlease select an image.");
 				return [];
-				break;ß
+				break;
 		}
 	}
 	return embeddedImages;
