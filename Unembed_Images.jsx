@@ -1,7 +1,5 @@
-﻿//DESCRIPTION: 'Unpaste' pasted images
-// Peter Kahrel -- www.kahrel.plus.com
+/*--------
 
-/*--------------
 	Unembed_Images.jsx is a heavely modified version of 
 	dump_pasted_images.jsx by Peter Kahrel -- www.kahrel.plus.com
 
@@ -23,7 +21,7 @@
 	You can either unembed a single file by selecting it and running the script.
 	If nothing is selected the script will unembed all embedded images in the document.
 
---------------*/
+--------*/
 
 #target indesign;
 
