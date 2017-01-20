@@ -35,7 +35,7 @@ function main(){
             unembed_selected_images();
         } else {
             // Process whole document
-            unembed_images();
+            unembed_all_images();
         }
     } else {
         alert("Open a document before running this script.");
@@ -85,7 +85,7 @@ function unembed_selected_images ()
     unembed(d,g);
 }
 
-function unembed_images ()
+function unembed_all_images ()
 {
     var d = app.activeDocument;
     var g = d.allGraphics;
