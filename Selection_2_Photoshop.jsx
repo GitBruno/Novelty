@@ -1,24 +1,24 @@
 /*////////////////////////////////////////////////////////////////
-	
-	Selection_2_Clipboard.jsx
-	Version 1
-	Tested in InDesign CC
-	
+    
+    Selection_2_Clipboard.jsx
+    Version 1
+    Tested in InDesign CC
+
     This script saves slection to be placed in Photoshop.
     It adds a new rectangle frame covering the current spread including bleed
     so it is easy to paste in place in Photoshop.
 
     Note: This does not work when selection is bigger then page bleed!
-	
-	Bruno Herfst 2016
-		
+    
+    Bruno Herfst 2016
+        
 ////////////////////////////////////////////////////////////////*/
 
 #target indesign;
 
 try{
-	var DOC = app.activeDocument;
-	var SPREAD = app.activeWindow.activeSpread;
+    var DOC = app.activeDocument;
+    var SPREAD = app.activeWindow.activeSpread;
     var SELECTION = [];
     if(app.selection.length != 0){
         for(var i=0; i<app.selection.length; i++){
@@ -29,28 +29,28 @@ try{
         exit();
     }
     var myItems = SELECTION.slice(0);
-	main();
+    main();
     alert("Copied selection to clipboard");
 }catch(e){
-	alert("OOPS!\n" + e.description);
-	exit();
+    alert("OOPS!\n" + e.description);
+    exit();
 }
 
 // ------------------------------------------------------ FUNCTIONS ------------------------------------------------------
 
 function main(){
-	var myRect = addRectangle(SPREAD.pages[0], "NEW_RECT_48655");
+    var myRect = addRectangle(SPREAD.pages[0], "NEW_RECT_48655");
     myItems.unshift(fit2SpreadBleed(myRect));
-	app.select(myItems);
+    app.select(myItems);
     app.copy();
     myItems[0].remove();
     //app.select(SELECTION);
 }
 
 function addRectangle( PAGE, LABEL ){
-	var myRect = PAGE.rectangles.add();
-    	myRect.label = LABEL;
-	return myRect;
+    var myRect = PAGE.rectangles.add();
+        myRect.label = LABEL;
+    return myRect;
 }
 
 function fit2SpreadBleed(myRect){
