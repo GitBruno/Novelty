@@ -5,25 +5,24 @@
 
     http://www.kahrel.plus.com/indesign/unembed_images.html
 
-     Script adjusted to suit Bruno Herfst 2016
+    Script adjusted to suit by Bruno Herfst 2016
     
-    PLease note that I had to remove the JPG and PNG options as these 
-    where based on the build-in exportFile() function. This function 
-    does not export the original, but rather the cropped version.
+    Please note that I removed the JPG and PNG options as these where 
+    based on the build-in exportFile() function. (This function does 
+    not export the full graohic, but rather the cropped/framed version.
 
-    The JPG and PNG or TIFF options can be easelly added to this script,
+    The JPG and PNG or TIFF options can be easily added to this script,
     but since I have no use for them, I'm leaving them out for now.
 
-    The main reason for adjusting the script was so it can handles pasted 
-    graphics that are scaled and/or rotated. Or are conatained by frames
-    that are not rectangular.
+    The main reason for adjusting the script was so it can handles
+    pasted graphics that are scaled and/or rotated. Or are conatained 
+    by frames that are not rectangular.
 
-    You can either unembed a single file by selecting it and running the script.
-    If nothing is selected the script will unembed all embedded images in the document.
+    You can either unembed a single file by selecting it's frame and 
+    running this script. If nothing is selected the script will unembed 
+    all embedded images it can find in the document.
 
 --------*/
-
-#target indesign;
 
 function main(){
     if (app.documents.length > 0) {
@@ -103,41 +102,33 @@ function randomString(length, chars) {
     return result;
 }
 
-function getPlatformInfo(){
-    var platform = File.fs;
-    if(platform == 'Windows'){
-        var trailSlash = "\\";
-    } else if(platform == "Macintosh") {
-        var trailSlash = "/";
-    } else {
-        var trailSlash = undefined;
-        coverBuilderAlert( localLocalised.Unsupported_Platform  + platform );
-    }
-    return {name : platform, trailSlash : trailSlash};
-}
-
 function unembed(d, g) {
-
-    var platform = File.fs;
-    if(platform == 'Windows'){
-        var trailSlash = "\\";
-    } else { // platform == "Macintosh"
-        var trailSlash = "/";
-    }
-    
+    var startFileName = d.name.replace (/\.indd$/, '').replace(/ /, '_').slice(0,8);
     var outfolder = get_outfolder();
-
-    var image_file, n = 0;
+    var allGood = true;
+    var n = 0;
     var sessionString = randomString(4, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
 
     for (var i = g.length-1; i > -1; i--)
     {
+        try {
+            var pageName = g[i].parentPage.name;
+        } catch( notOnPage ) {
+            var pageName = 'X';
+        }
+    	
+    	var image_file = undefined;
         if (g[i].itemLink == null)
         {
-            var fileName = sessionString + (n++) + '.EPS';
-            image_file = File (outfolder + trailSlash + fileName);
+            var fileName = startFileName + "_P" + pageName + "_" + sessionString + (n++) + '.EPS';
+            image_file = File (outfolder + "/" + fileName);
             export_eps (g[i], image_file);
-            g[i].parent.place (image_file);
+            try {
+                g[i].parent.place ( image_file );
+            } catch ( fileNotFound ) {
+                alert("Having trouble saving the file to " + outfolder + "\nDo you have permission to write to this folder?");
+                return;
+            }
         } else {
             if (g[i].itemLink.status === LinkStatus.linkEmbedded) {
                 g[i].itemLink.unembed(outfolder);
@@ -145,7 +136,7 @@ function unembed(d, g) {
         }
     }
 
-    alert("Finished exporting " + g.length + " images.\nFiles are saved in folder " + outfolder)
+    alert("Finished exporting " + g.length + " image(s).\nFiles are saved in folder " + outfolder);
 }
 
 function get_outfolder ()
@@ -182,7 +173,7 @@ function export_eps (im, f)
         d.viewPreferences.rulerOrigin = RulerOrigin.pageOrigin;
         d.zeroPoint = [0,0];
 
-        // Set margins to zero in case page size is smaller then margins
+        // Set margins to zero in case page size is smaller than margins
         d.pages[0].marginPreferences.top    = 0;
         d.pages[0].marginPreferences.right  = 0;
         d.pages[0].marginPreferences.left   = 0;
