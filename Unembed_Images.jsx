@@ -1,214 +1,167 @@
-/*--------
+//DESCRIPTION: 'Unpaste' pasted images
+// Peter Kahrel -- www.kahrel.plus.com
 
-    Unembed_Images.jsx is a heavely modified version of 
-    dump_pasted_images.jsx by Peter Kahrel -- www.kahrel.plus.com
+// Pasted images (images without a link in the Links panel)
+// are written on disk in the selected directory
+// Images can be linked.
 
-    http://www.kahrel.plus.com/indesign/unembed_images.html
+(function () {
 
-    Script adjusted to suit by Bruno Herfst 2016
-    
-    Please note that I removed the JPG and PNG options as these where 
-    based on the build-in exportFile() function. (This function does 
-    not export the full graohic, but rather the cropped/framed version.
-
-    The JPG and PNG or TIFF options can be easily added to this script,
-    but since I have no use for them, I'm leaving them out for now.
-
-    The main reason for adjusting the script was so it can handles
-    pasted graphics that are scaled and/or rotated. Or are conatained 
-    by frames that are not rectangular.
-
-    You can either unembed a single file by selecting it's frame and 
-    running this script. If nothing is selected the script will unembed 
-    all embedded images it can find in the document.
-
---------*/
-
-function main(){
-    if (app.documents.length > 0) {
-        if(app.activeDocument.modified) {
-            return alert("Please save your document before running this script.");
-        }
-        if(app.selection.length > 0) {
-            // Work on selction
-            unembed_selected_images();
-        } else {
-            // Process whole document
-            unembed_all_images();
-        }
-    } else {
-        alert("Open a document before running this script.");
-    }
-}
-
-function get_embedded_from( selection ){
-    var embeddedImages = [];
-    var len = selection.length;
-    for (var i = 0; i < len; i++) {
-        var type = selection[i].constructor.name;
-        switch(type) {
-            case "Image":
-            case "EPS":
-            case "PDF":
-            case "AI":
-                if( (selection[i].itemLink == null) || (selection[i].itemLink.status == LinkStatus.linkEmbedded) ) {
-                    embeddedImages.push(selection[i]);
-                }
-                break;
-            case "Rectangle":
-            case "Polygon":
-            case "Oval":
-                if( (selection[i].graphics[0].itemLink == null) || (selection[i].graphics[0].itemLink.status == LinkStatus.linkEmbedded) ) {
-                    embeddedImages.push(selection[i].graphics[0]);
-                }
-                break;
-            default:
-                alert("Can't process elements of type " + type + "\nPlease select an image.");
-                return [];
-                break;
-        }
-    }
-    return embeddedImages;
-}
-
-function unembed_selected_images ()
-{
-    var d = app.activeDocument;
-    var g = get_embedded_from( app.selection );
-    
-    if(g.length == 0) {
-        alert("No embedded images found.");
-        return;
-    }
-
-    unembed(d,g);
-}
-
-function unembed_all_images ()
-{
-    var d = app.activeDocument;
-    var g = d.allGraphics;
-
-    if(embedded_graphics) {
-        unembed(d, g);
-    } else {
-        alert("No embedded images found.");
-    }
-}
-
-function randomString(length, chars) {
-    var result = '';
-    for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
-    return result;
-}
-
-function unembed(d, g) {
-    var startFileName = d.name.replace (/\.indd$/, '').replace(/ /, '_').slice(0,8);
-    var outfolder = get_outfolder();
-    var allGood = true;
-    var n = 0;
-    var sessionString = randomString(4, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
-
-    for (var i = g.length-1; i > -1; i--)
-    {
+    function scriptPath () {
         try {
-            var pageName = g[i].parentPage.name;
-        } catch( notOnPage ) {
-            var pageName = 'X';
-        }
-    	
-    	var image_file = undefined;
-        if (g[i].itemLink == null)
-        {
-            var fileName = startFileName + "_P" + pageName + "_" + sessionString + (n++) + '.EPS';
-            image_file = File (outfolder + "/" + fileName);
-            export_eps (g[i], image_file);
-            try {
-                g[i].parent.place ( image_file );
-            } catch ( fileNotFound ) {
-                alert("Having trouble saving the file to " + outfolder + "\nDo you have permission to write to this folder?");
-                return;
-            }
-        } else {
-            if (g[i].itemLink.status === LinkStatus.linkEmbedded) {
-                g[i].itemLink.unembed(outfolder);
-            }
+            return app.activeScript;
+        } catch (e) {
+            return File (e.fileName);
         }
     }
 
-    alert("Finished exporting " + g.length + " image(s).\nFiles are saved in folder " + outfolder);
-}
+    function saveData (obj) {
+        var f = File (scriptPath().fullName.replace (/\.jsx?(bin)?$/, '.txt'));
+        f.open ('w');
+        f.write (obj.toSource());
+        f.close ();
+    }
 
-function get_outfolder ()
-{
-    var e;
+    function getPrevious () {
+        var f = File (scriptPath().fullName.replace (/\.jsx?(bin)?$/, '.txt'));
+        if (f.exists){
+            return $.evalFile(f);
+        }
+        return {
+            format: 'EPS',
+            create_links: true,
+            folder: app.documents[0].filePath+'/'
+        };
+    }
 
-    try {var f = Folder (app.activeDocument.fullName.path).selectDlg();}
-        catch(e){alert(e.message); exit();}
-    if (f === null)
-        exit();
-    else
+    function get_outfolder (dir) {
+        //return Folder (app.documents[0].fullName.path);
+        var e;
+        try {
+            var f = Folder (dir).selectDlg();
+        } catch (e) {
+            alert (e.message);
+            exit();
+        }
+        if (f === null) exit();
         return f;
-}
-
-function embedded_graphics(array)
-{
-    var z = array.length;
-    for (var i = 0; i < z; i++)
-        if (array[i].itemLink == null || array[i].itemLink.status == LinkStatus.linkEmbedded)
-            return true;
-    return false;
-}
-
-function export_eps (im, f)
-{
-
-    var gb   = im.parent.geometricBounds;
-    var d    = app.documents.add (false);
-
-    // Separate try-catch-finally here (apart from the global one)
-    // to make sure that we don't end up with documents without a layout window
-    try
-    {
-        d.viewPreferences.rulerOrigin = RulerOrigin.pageOrigin;
-        d.zeroPoint = [0,0];
-
-        // Set margins to zero in case page size is smaller than margins
-        d.pages[0].marginPreferences.top    = 0;
-        d.pages[0].marginPreferences.right  = 0;
-        d.pages[0].marginPreferences.left   = 0;
-        d.pages[0].marginPreferences.bottom = 0;
-
-        var dupl = im.parent.duplicate (d.pages[0]);
-
-        // Imges are always rectangles
-        dupl.convertShape(ConvertShapeOptions.CONVERT_TO_RECTANGLE);
-        // Reset image parameters
-        dupl.rotationAngle = 0;
-        dupl.images[0].rotationAngle = 0;
-        dupl.images[0].horizontalScale = 100;
-        dupl.images[0].verticalScale = 100;
-        dupl.images[0].fit(FitOptions.FRAME_TO_CONTENT);
-
-        originalSize = dupl.images[0].geometricBounds;
-
-        d.documentPreferences.pageHeight = originalSize[2] - originalSize[0];
-        d.documentPreferences.pageWidth  = originalSize[3] - originalSize[1];
-
-        // Make sure item is on page
-        dupl.move([1, 1]); 
-        // Center on the page
-        d.align([dupl], AlignOptions.HORIZONTAL_CENTERS, AlignDistributeBounds.PAGE_BOUNDS);
-        d.align([dupl], AlignOptions.VERTICAL_CENTERS,   AlignDistributeBounds.PAGE_BOUNDS);
-
-        dupl.exportFile (ExportFormat.epsType, f);
     }
-    catch (_) { }
-    finally {d.close (SaveOptions.no)}
-}
 
-try {
-    main();
-} catch (e) {
-    alert (e.message + '\r(line ' + e.line + ')')
-};
+    function pasted_graphics (array) {
+        for (var i = array.length-1; i >= 0; i--) {
+            if (array[i].itemLink == null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function get_format (previous) {
+        var export_enums = [ExportFormat.EPS_TYPE, ExportFormat.JPG, ExportFormat.PNG_FORMAT];
+        var w = new Window ('dialog {text: "Save pasted images", alignChildren: "left", properties: {closeButton: false}}');
+            var g1 = w.add ('panel {orientation: "row"}');
+                g1.add ('statictext', undefined, 'Export format: ');
+            var format = g1.add ('dropdownlist', [0,0,160,22], ['EPS', 'JPEG', 'PNG']);
+            var link = w.add ('checkbox {text: "Create links"}');
+            var buttons = w.add ('group {alignment: "right"}');
+                buttons.add ('button', undefined, 'OK', {name: 'ok'});
+                buttons.add ('button', undefined, 'Cancel', {name: 'cancel'});
+
+        format.selection = format.find (previous.format);
+        link.value = previous.create_links;
+        
+        if (w.show () == 2) {
+            exit();
+        }
+
+        var o = {
+            format: format.selection.text, 
+            enum_type: export_enums [format.selection.index],
+            create_links: link.value
+        };
+        w.close();
+        return o;
+    }
+
+    //-------------------------------------------------------------------------------------------------------------------------------------------------
+
+    function scratch () {
+        var d = app.documents.add ({visible: true, zeroPoint: [0,0]});
+        d.pages[0].marginPreferences.properties = {top: 0, left: 0, bottom: 0, right: 0};
+        return d;
+    }
+
+    function export_as (ExportFormat, im, f) {
+        var gb = im.parent.geometricBounds;
+        var d = scratch();
+        try {
+            var dupl = im.parent.duplicate (d.pages[0]);
+            if (!(dupl instanceof Rectangle)) {
+                dupl.convertShape (ConvertShapeOptions.CONVERT_TO_RECTANGLE);
+            }
+            dupl.clearTransformations();
+            dupl.images[0].clearTransformations();
+            dupl.images[0].fit (FitOptions.FRAME_TO_CONTENT);
+
+            gb = dupl.geometricBounds;
+            d.documentPreferences.properties = {
+                pageHeight: gb[2] - gb[0],
+                pageWidth: gb[3] - gb[1]
+            }
+            
+            dupl.move (d.pages[0]);
+            dupl.move ([0, 0]);
+            dupl.move (d.pages[0]);
+            dupl.exportFile (ExportFormat, f);
+        } catch (_) {
+        } finally {
+            d.close (SaveOptions.no);
+        }
+    }
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------
+    
+    
+    function unembed_images () {
+        var previous = getPrevious();
+        var doc = app.documents[0];
+        var outfolder = get_outfolder(previous.folder);
+        if (doc.saved) {
+            var outname = outfolder + '/' + doc.name.replace (/\.indd$/, '_');
+        } else {
+            var outname = outfolder + '/untitled___';
+        }
+        var image_file, n = 0, g = doc.allGraphics;
+        if (pasted_graphics(g)) {
+            var export_data = get_format (previous);
+        }
+        for (var i = g.length-1; i > -1; i--) {
+            if (g[i].itemLink == null) {
+                image_file = File (outname + (n++) + '.' + export_data.format);
+                export_as(export_data.enum_type, g[i], image_file);
+                if (export_data.create_links) {
+                    g[i].parent.place (image_file);
+                } else {
+                    g[i].parent.remove ();
+                }
+            } else if (g[i].itemLink.status === LinkStatus.linkEmbedded) {
+                    g[i].itemLink.unembed(outfolder);
+            }
+        }
+
+        saveData ({
+            folder: outfolder,
+            format: export_data.format, 
+            create_links: export_data.create_links
+        });
+
+    }
+
+    //-------------------------------------------------------------------------------------------------------------------
+    
+    if (app.documents.length === 0) {
+        alert ('Open a document.'); exit();
+    }
+    unembed_images();
+
+}());
