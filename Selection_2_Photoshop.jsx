@@ -50,6 +50,8 @@ function main(){
 function addRectangle( PAGE, LABEL ){
     var myRect = PAGE.rectangles.add();
         myRect.label = LABEL;
+        myRect.fillColor    = DOC.swatches.item("None");
+        myRect.strokeWeight = 0;
     return myRect;
 }
 
@@ -67,11 +69,17 @@ function fit2SpreadBleed(myRect){
 
     var pageBounds = [firstPageBounds[0],firstPageBounds[1],lastPageBounds[2],lastPageBounds[3]]; 
     var pageWidth = pageBounds[3]-pageBounds[1];
-
-    var bleedBot = DOC.documentPreferences.documentBleedBottomOffset;
-    var bleedLef = DOC.documentPreferences.documentBleedInsideOrLeftOffset;
-    var bleedRig = DOC.documentPreferences.documentBleedOutsideOrRightOffset;
+    
     var bleedTop = DOC.documentPreferences.documentBleedTopOffset;
+    var bleedBot = DOC.documentPreferences.documentBleedBottomOffset;
+    
+    if(DOC.documentPreferences.facingPages) {
+        var bleedLef = DOC.documentPreferences.documentBleedOutsideOrRightOffset;
+        var bleedRig = DOC.documentPreferences.documentBleedOutsideOrRightOffset;
+    } else {
+        var bleedLef = DOC.documentPreferences.documentBleedInsideOrLeftOffset;
+        var bleedRig = DOC.documentPreferences.documentBleedOutsideOrRightOffset;
+    }
 
     var bleedBound = new Array(pageBounds[0]-bleedTop,pageBounds[1]-bleedLef,pageBounds[2]+bleedBot,pageBounds[3]+bleedRig);
 
