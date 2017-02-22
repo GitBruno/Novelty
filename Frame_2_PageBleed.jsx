@@ -78,10 +78,13 @@ function straightenFrames(){
 function fit(){
 	var oldRuler = myDoc.viewPreferences.rulerOrigin;
 	myDoc.viewPreferences.rulerOrigin = RulerOrigin.spreadOrigin;
+
 	try {
         for(var i=0;i<app.selection.length;i++){
-            var myRect = app.selection[i];
-            var myPage = myRect.parentPage;
+            var myRect   = app.selection[i];
+            var myPage   = myRect.parentPage;
+            var mySpread = myPage.parent;
+
             //check bounds
             var rectBounds = myRect.geometricBounds,
                 pageBounds = myPage.bounds, //in the format [y1, x1, y2, x2], top-left and bottom-right
@@ -96,12 +99,22 @@ function fit(){
                 var bleedBound = new Array(-bleed,-bleed,pageBounds[2]+bleed,pageWidth*2+bleed);
             } else {
                 //page
-                if(myPage.side == PageSideOptions.RIGHT_HAND){
-                    var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1],pageBounds[2]+bleed,pageBounds[3]+bleed);
-                } else if(myPage.side == PageSideOptions.LEFT_HAND){
-                    var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1]-bleed,pageBounds[2]+bleed,pageBounds[3]);
-                } else { // PageSideOptions.SINGLE_SIDED
-                    var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1]-bleed,pageBounds[2]+bleed,pageBounds[3]+bleed);
+                if(myDoc.documentPreferences.facingPages) {
+                    if(myPage.side == PageSideOptions.RIGHT_HAND){
+                        var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1],pageBounds[2]+bleed,pageBounds[3]+bleed);
+                    } else if(myPage.side == PageSideOptions.LEFT_HAND){
+                        var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1]-bleed,pageBounds[2]+bleed,pageBounds[3]);
+                    } else { // PageSideOptions.SINGLE_SIDED
+                        var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1]-bleed,pageBounds[2]+bleed,pageBounds[3]+bleed);
+                    }
+                } else {
+                    if(mySpread.pages.lastItem().id == myPage.id){
+                        var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1],pageBounds[2]+bleed,pageBounds[3]+bleed);
+                    } else if(mySpread.pages.firstItem().id == myPage.id){
+                        var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1]-bleed,pageBounds[2]+bleed,pageBounds[3]);
+                    } else { // middle
+                        var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1],pageBounds[2]+bleed,pageBounds[3]);
+                    }
                 }
             }
             myRect.geometricBounds = bleedBound;
