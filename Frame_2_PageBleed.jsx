@@ -44,31 +44,37 @@ function straightenFrames(){
 	try {
 		for(var i=0;i<app.selection.length;i++){
 			var myRect = app.selection[i];
-			try{
+            try{
 				var myImg = myRect.images[0];
 			} catch(_) {
 				continue;
 			}
 
 			//Find out what the rotationangle is
-			var rectRot = myRect.rotationAngle,
-				imgRot = myImg.rotationAngle,
+			var rectRot   = myRect.rotationAngle,
+				imgRot    = myImg.rotationAngle,
 				imgBounds = myImg.geometricBounds;
 
-			if(rectRot == 0){
-				continue;
-			}
+            var posAngle = Math.abs(rectRot);
+            
+            if( posAngle == 0 ){
+                continue;
+            }
+
+			if( (posAngle > 45) && (posAngle <= 90) ) {
+                // avoid a reversed width/height
+                var add90 = app.transformationMatrices.add({counterclockwiseRotationAngle:-90});
+            }
 
 			//Create the transformation matrix
 			var rectTransformationMatrix = app.transformationMatrices.add({counterclockwiseRotationAngle:-rectRot});
-				imgTransformationMatrix = app.transformationMatrices.add({counterclockwiseRotationAngle:rectRot+imgRot});
+			var imgTransformationMatrix  = app.transformationMatrices.add({counterclockwiseRotationAngle:rectRot+imgRot});
 			// Rotate around its center point
 			myRect.transform(CoordinateSpaces.pasteboardCoordinates, AnchorPoint.centerAnchor, rectTransformationMatrix);
+            if(add90) {
+                myRect.transform(CoordinateSpaces.pasteboardCoordinates, AnchorPoint.centerAnchor, add90);
+            }
 			myImg.transform(CoordinateSpaces.pasteboardCoordinates, AnchorPoint.centerAnchor, imgTransformationMatrix);
-
-			if(imgRot >= 180) {
-				var newAngle = myImg.rotationAngle -= 180;
-			}
 
 			myImg.geometricBounds = imgBounds;
 		}
