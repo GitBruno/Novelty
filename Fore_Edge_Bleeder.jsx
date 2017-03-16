@@ -12,7 +12,7 @@
 
 try{
 	// Global variables
-	var selectedLayer, myLoopImages = false, myInnerBleed = 5,
+	var selectedLayer, myLoopImages = false, myInnerBleed = 4, myMultiply = true,
 		myDoc = app.activeDocument,
 		list_of_pages = myDoc.pages.everyItem().name,
 		myFiles = File.openDialog("Select files to place:", "", true);
@@ -139,7 +139,7 @@ function placeImages(){
 		var myY1 = -myDoc.documentPreferences.documentBleedTopOffset; //top
 		var myY2 = myDoc.documentPreferences.pageHeight+myDoc.documentPreferences.documentBleedBottomOffset; //bottom
 		if(myPage.side == PageSideOptions.leftHand){
-			var myX1 = -myDoc.documentPreferences.documentBleedInsideOrLeftOffset; //left
+			var myX1 = -myDoc.documentPreferences.documentBleedOutsideOrRightOffset; //outside
 			var myX2 = myInnerBleed; //right
 		}
 		else if(myPage.side == PageSideOptions.rightHand){
@@ -149,6 +149,9 @@ function placeImages(){
 		myRectangle = myPage.rectangles.add(selectedLayer, undefined, undefined, {geometricBounds:[myY1, myX1, myY2, myX2], strokeWeight:0, strokeColor:myDoc.swatches.item("None"), fillColor:myDoc.swatches.item("None")});
 		// place image in container
 		myRectangle.place(myIMG);
+		if( myMultiply ) {
+		    myRectangle.transparencySettings.blendingSettings.blendMode = BlendMode.MULTIPLY;
+		}
 	}
 }
 
