@@ -47,6 +47,7 @@ function resetSettings(){
     // This function changes back all settings to original settings
     setRulerUnits(DOC, ORIGINAL_RULERS);
     DOC.gridPreferences.documentGridShown = ORIGINAL_GRIDSHOWN;
+    DOC.gridPreferences.baselineGridShown = ORIGINAL_BASELINESHOWN;
 }
 
 function doRound(myNum, roundDec) {
@@ -165,12 +166,15 @@ try {
     
     var ORIGINAL_RULERS = setRulerUnits(DOC, [MeasurementUnits.POINTS, MeasurementUnits.POINTS]); // Safe old ruler units whils setting to points
     var ORIGINAL_GRIDSHOWN = DOC.gridPreferences.documentGridShown;
+    var ORIGINAL_BASELINESHOWN = DOC.gridPreferences.baselineGridShown;
+    
     
     var MY_MEASURE_UNITS = ["mm","pt"];
     var current_measure_unit = MY_MEASURE_UNITS[1];
 
     // Show grid while interacting with the UI
     DOC.gridPreferences.documentGridShown = true;
+    DOC.gridPreferences.baselineGridShown = true;
 
     //Get current step
     var VERTICALGRIDSTEP = getVerticalGridStep();
