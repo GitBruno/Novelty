@@ -11,7 +11,7 @@ Rotate for example.
 
 NOTE: This script uses the bounds to set the size and therefore does not work inside
       text frames that already have been rotated.
-      It does not work with obkect srtyles in folders
+      It does not work with object styles in folders
 
 */
 
@@ -105,47 +105,31 @@ var WB_Crossword = {
     name                  : "WordBurger_CutWords" // String
 };
 
-var Settings = Devil_Poems;
+var RGB_House = {
+    moveSingleCharacters  : false,     // Boolean
+    moveSingleWords       : true,      // Boolean
+    forceSquares          : false,     // Boolean: Force a square when doing single characters
+    centerText            : true,      // Boolean
+    removeIndents         : true,      // Boolean
+    textFrameInsetSpacing : 2,         // float: points
+    heightGain            : 0,         // float: points. Adjust the height of the frame
+    textBaselineShift     : [0,0],     // float: points. Adjust the vertical alignment inside the frame
+    frameBaselineShift    : 0,         // float: points. Adjust the vertical position of the inline frame
+    objectStyleName       : undefined, // String || undefined
+    strokeWeight          : 0,         // float: points.
+    strokeColor           : "None",    // String: Swatch name or None
+    strokeTint            : [0,0],     // Array: percentage [float: Min, float: Max]
+    fillColor             : "None",    // String: Swatch name
+    fillTint              : [100,100], // Array: percentage [float: Min, float: Max]
+    alignToBaseline       : true,      // Boolean: Frame will be aligned to baseline from now on.
+    rotation              : [-2,4],    // Array: rotation [float: Min, float: Max]
+    fontSizeAdjust        : [-1.5,1.5],    // Array: Font size adjustment [float: Min, float: Max]
+    name                  : "Red House, Green House, Blue House, Tree House!" // String
+};
+
+var Settings = RGB_House;
 
 var userNeverGotObjectStyleAlert = true; // So we only get the warning once.
-
-if(app.documents.length != 0){
-    //global vars
-    var myDoc = app.activeDocument;
-    var originalRulerUnits = [myDoc.viewPreferences.horizontalMeasurementUnits,myDoc.viewPreferences.verticalMeasurementUnits];
-
-    if (app.selection.length == 1){
-        switch (app.selection[0].constructor.name){
-            case "Character":
-            case "Text":
-            case "Word":
-            case "Paragraph":
-            case "TextStyleRange":
-            case "TextColumn":
-                if(Settings.moveSingleCharacters){
-                    for(i=app.selection[0].characters.length-1; i>=0 ; i--){
-                        main(app.selection[0].characters[i]);
-                    }
-                } else if(Settings.moveSingleWords){
-                    for(i=app.selection[0].words.length-1; i>=0 ; i--){
-                        main(app.selection[0].words[i]);
-                    }
-                } else {
-                    main(app.selection[0]);
-                }
-                break;
-            default:
-                alert("This is a "+ app.selection[0].constructor.name +"\nSelect some text or a textframe and try again.");
-                break;
-        }
-    } else {
-        alert("Select a textframe and try again.");
-    }
-
-}else{
-    alert("Please open a document and try again.");
-}
-
 
 function setRedraw(myOriginalPrefs){
     // This function is a rewite of forceRedraw by by Jon S. Winters
@@ -239,12 +223,22 @@ function main(selection){
     var seltf = story.characters[(selection.index - 1)];
 
     seltf.baselineShift = -(bottomInset + Settings.strokeWeight + ((Settings.textBaselineShift[0] + Settings.textBaselineShift[0]) /2) ) + Settings.frameBaselineShift;
-
-    for (var i = 0; i < tf.characters.length; i++) {
-        tf.characters[i].pointSize     += randomInRange(Settings.fontSizeAdjust[0],    Settings.fontSizeAdjust[1]);
-        tf.characters[i].baselineShift += randomInRange(Settings.textBaselineShift[0], Settings.textBaselineShift[1]);
+    
+    if(Settings.moveSingleWords) {
+        for (var i = 0; i < tf.words.length; i++) {
+            tf.words[i].pointSize     += randomInRange(Settings.fontSizeAdjust[0],    Settings.fontSizeAdjust[1]);
+            tf.words[i].baselineShift += randomInRange(Settings.textBaselineShift[0], Settings.textBaselineShift[1]);
+        }
+    } else {
+    
+        for (var i = 0; i < tf.characters.length; i++) {
+            tf.characters[i].pointSize     += randomInRange(Settings.fontSizeAdjust[0],    Settings.fontSizeAdjust[1]);
+            tf.characters[i].baselineShift += randomInRange(Settings.textBaselineShift[0], Settings.textBaselineShift[1]);
+        }
+        
     }
 
+    
     if(Settings.objectStyleName) {
         try {
             tf.appliedObjectStyle = myDoc.objectStyles.item(Settings.objectStyleName);
@@ -283,6 +277,7 @@ function getOpposite(hypotenuse, angle){
 function toDegrees (angle) {
   return angle * (180 / Math.PI);
 }
+
 function toRadians (angle) {
   return angle * (Math.PI / 180);
 }
@@ -313,4 +308,53 @@ function styleFrame(Settings, frame){
 function removeIndents(textFrame){
     textFrame.texts[0].leftIndent = 0;
     textFrame.texts[0].rightIndent = 0;
+}
+
+function run() {
+    if (app.selection.length == 1){
+        switch (app.selection[0].constructor.name){
+            case "Character":
+            case "Text":
+            case "Word":
+            case "Paragraph":
+            case "TextStyleRange":
+            case "TextColumn":
+                if(Settings.moveSingleCharacters){
+                    for(i=app.selection[0].characters.length-1; i>=0 ; i--){
+                        main(app.selection[0].characters[i]);
+                    }
+                } else if(Settings.moveSingleWords){
+                    for(i=app.selection[0].words.length-1; i>=0 ; i--){
+                        main(app.selection[0].words[i]);
+                    }
+                } else {
+                    main(app.selection[0]);
+                }
+                break;
+            default:
+                alert("This is a "+ app.selection[0].constructor.name +"\nSelect some text or a textframe and try again.");
+                break;
+        }
+    } else {
+        alert("Select a textframe and try again.");
+    }
+}
+
+if(app.documents.length != 0){
+    //global vars
+    var myDoc = app.activeDocument;
+    var originalRulerUnits = [myDoc.viewPreferences.horizontalMeasurementUnits,myDoc.viewPreferences.verticalMeasurementUnits];
+    try {
+      // Run script with single undo if supported
+      if (parseFloat(app.version) < 6) {
+        run();
+      } else {
+        app.doScript(run, ScriptLanguage.JAVASCRIPT, undefined, UndoModes.ENTIRE_SCRIPT, "Expand State Abbreviations");
+      }
+      // Global error reporting
+    } catch ( error ) {
+      alert("I'm having trouble creating a quality barcode:\n" + error + " (Line " + error.line + " in file " + error.fileName + ")");
+    }
+}else{
+    alert("Please open a document and try again.");
 }
