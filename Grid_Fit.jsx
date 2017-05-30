@@ -175,7 +175,7 @@ function fitHGS(myGridStep, addSubtract){
 	var mySubdevision = DOC.gridPreferences.horizontalGridSubdivision;
 	var myGS = parseFloat(myGridStep);
 	var countGS = doRound(SPREAD_SIZE.W/myGS,0) + addSubtract;
-	var fitGS = doRound(SPREAD_SIZE.W/countGS,3);
+	var fitGS = doRound(SPREAD_SIZE.W/countGS,8);
 	setHGS(fitGS);
 }
 
@@ -183,26 +183,26 @@ function fitVGS(myGridStep, addSubtract){
 	var mySubdevision = DOC.gridPreferences.verticalGridSubdivision;
 	var myGS = parseFloat(myGridStep);
 	var countGS = doRound(SPREAD_SIZE.H/myGS,0) + addSubtract;
-	var fitGS = doRound(SPREAD_SIZE.H/countGS,3);
+	var fitGS = doRound(SPREAD_SIZE.H/countGS,8);
 	setVGS(fitGS);
 }
 
 function setHGS(myGridStep){
 	var mySubdevision = DOC.gridPreferences.horizontalGridSubdivision;
 	var myGS = parseFloat(myGridStep);
-	DOC.gridPreferences.horizontalGridlineDivision = doRound(myGS * mySubdevision, 6);
+	DOC.gridPreferences.horizontalGridlineDivision = doRound(myGS * mySubdevision, 8);
 }
 
 function setVGS(myGridStep){
 	var myGS = parseFloat(myGridStep);
 	var mySubdevision = DOC.gridPreferences.verticalGridSubdivision;
-	DOC.gridPreferences.verticalGridlineDivision = doRound(myGS * mySubdevision, 6);
+	DOC.gridPreferences.verticalGridlineDivision = doRound(myGS * mySubdevision, 8);
 }
 
 function getGridStep(){
 	return {
-		HGS : doRound(DOC.gridPreferences.horizontalGridlineDivision / DOC.gridPreferences.horizontalGridSubdivision, 3),
-		VGS : doRound(DOC.gridPreferences.verticalGridlineDivision / DOC.gridPreferences.verticalGridSubdivision, 3)
+		HGS : doRound(DOC.gridPreferences.horizontalGridlineDivision / DOC.gridPreferences.horizontalGridSubdivision, 8),
+		VGS : doRound(DOC.gridPreferences.verticalGridlineDivision / DOC.gridPreferences.verticalGridSubdivision, 8)
 	}
 }
 
