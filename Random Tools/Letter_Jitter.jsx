@@ -60,9 +60,10 @@ function main(){
         if(mS.constructor.name == "Text" ||
            mS.constructor.name == "Word" ||
            mS.constructor.name == "Line" ||
-           mS.constructor.name == "Character" ||
-           mS.constructor.name == "Paragraph" ||
-           mS.constructor.name == "TextColumn"){
+           mS.constructor.name == "Character"  ||
+           mS.constructor.name == "Paragraph"  ||
+           mS.constructor.name == "TextColumn" ||
+           mS.constructor.name == "TextStyleRange" ){
             //see what paragraph style the selection is
             paraSelection = mS.appliedParagraphStyle.name;
             charSelection = mS.appliedCharacterStyle.name;
