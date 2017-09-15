@@ -90,7 +90,11 @@ var i = appendParas.length;
 while(i--) {
     var myStory = appendParas[i].parentStory;
     var lastCharIndex = appendParas[i].characters[-1].index;
-    var lastCharCode  = myStory.characters[lastCharIndex].contents.charCodeAt(0);
+    try {
+        var lastCharCode = myStory.characters[lastCharIndex].contents.charCodeAt(0);
+    } catch ( err ) {
+        var lastCharCode = 0;
+    }
     
     // Insert pagebreak
     appendParas[i].insertionPoints[-1].contents = SpecialCharacters.FRAME_BREAK;
