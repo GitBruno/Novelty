@@ -1,11 +1,10 @@
-﻿
 // Size a frame's tables to the width of the frame 
 // by resizing columns proportionally.
 // Peter Kahrel -- www.kahrel.plus.com
 
 // Adjusted by Bruno Herfst to suit needs:
 // 1. Don't check if columns are wide enough
-// 
+// 2. Set rows to auto grow
 
 (function () {
 	
