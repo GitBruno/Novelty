@@ -5,10 +5,15 @@ StorySplitter
 An InDesign CS/CS2/CS3 JavaScript by FourAces
 © The Final Touch 2006
 Version 3.0.0
- 
+
 Splits the selected Story to separate Text Frames, while maintaining their contents.
 ----------------------------------------------------------------------
 */
+
+// Adjusted by Bruno Herfst to suit needs
+// 1. Return to selected frame page
+// Don't have time for this now but it would be good if there was an option for style based splitting.
+// Will proberbly have to write from scratch to avoid the App.c
 
 #target indesign;
 
@@ -72,6 +77,7 @@ if(app.documents.length != 0){
      if(mySelection.length != 0){
           myObjectType = mySelection[0].constructor.name;
           if(myObjectType == "TextFrame"){
+               var returnPage = mySelection[0].parentPage;
                //The Interface Dialog
                var myDialog = app.dialogs.add({name:"Story Splitter v"+ myScriptVer});
                with(myDialog){
@@ -117,6 +123,7 @@ if(app.documents.length != 0){
                                         mySplitAfter();
                                         break;
                               }
+                              app.activeWindow.activePage = returnPage;
                               alert("Done!");
                          } else {
                               alert("Are You Kidding Me?!\nThe Story you selected has only ONE text frame.");

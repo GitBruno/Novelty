@@ -1,0 +1,10 @@
+--- Lines starting with three hyphens are ignored, --- can be used for comments
+--- Empty lines are ignored, too
+
+===Regular
+N[oe]	-20
+ra	-25
+
+===Bold
+N[oe]	-20
+ra	-25
