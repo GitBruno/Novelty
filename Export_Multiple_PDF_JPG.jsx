@@ -135,15 +135,8 @@ function export_jpg( Doc, Preset ){
 
 
 function export_pdf( Doc, Preset ) {
-    try{
-        app.pdfExportPresets.item("Export_Multiple.jsx").remove();
-    } catch( whatever ) {
-        // Just in case application crashes on previous export
-    }
-
     // We need to duplicate the preset so we can make the nececairy changes (Export Spreads)
     var exportPreset = app.pdfExportPresets.item(Preset.presetName).duplicate();
-    exportPreset.name = "Export_Multiple.jsx";
     exportPreset.exportReaderSpreads = Preset.exportSpreads;
 
     // Page Range
