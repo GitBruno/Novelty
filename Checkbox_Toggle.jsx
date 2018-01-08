@@ -1,6 +1,6 @@
 /*
 
-Toggle_CheckboxState.jsx
+Checkbox_Toggle.jsx
 Version 1.0
 Bruno Herfst 2016
 

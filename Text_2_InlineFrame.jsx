@@ -1,5 +1,5 @@
 /*
-Text_2_Frame.jsx
+Text_2_InlineFrame.jsx
 
 Version 1.2
 
