@@ -1,6 +1,6 @@
 /*////////////////////////////////////////////////////////////////
 	
-	AddFrame_2_SpreadBleed.jsx
+	New_Rectangle_2_SpreadBleed.jsx
 	Version 1
 	Tested in InDesign CC
 	

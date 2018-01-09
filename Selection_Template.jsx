@@ -4,7 +4,7 @@ Selection_Temlate.jsx
 Version 1.0
 Bruno Herfst 2011
 
-An InDesign javascript to quickly do something with the selected object
+An InDesign javascript to quickly do something with the selected objects
 
 */
 
