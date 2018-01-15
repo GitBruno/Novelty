@@ -94,14 +94,21 @@ function fit(){
             var firstPageBounds = firstPage.bounds; //in the format [y1, x1, y2, x2], top-left and bottom-right
             var lastPageBounds  = lastPage.bounds;
 
-
             var pageBounds = [firstPageBounds[0],firstPageBounds[1],lastPageBounds[2],lastPageBounds[3]]; 
             var pageWidth = pageBounds[3]-pageBounds[1];
+            
+            var bleedTop = myDoc.documentPreferences.documentBleedTopOffset;
+            var bleedBot = myDoc.documentPreferences.documentBleedBottomOffset;
+            
+            if(myDoc.documentPreferences.facingPages) {
+                var bleedLef = myDoc.documentPreferences.documentBleedOutsideOrRightOffset;
+                var bleedRig = myDoc.documentPreferences.documentBleedOutsideOrRightOffset;
+            } else {
+                var bleedLef = myDoc.documentPreferences.documentBleedInsideOrLeftOffset;
+                var bleedRig = myDoc.documentPreferences.documentBleedOutsideOrRightOffset;
+            }
 
-            //check bleed (can be made more specific, good for now)
-            var bleed = myDoc.documentPreferences.documentBleedTopOffset;
-
-            var bleedBound = new Array(pageBounds[0]-bleed,pageBounds[1]-bleed,pageBounds[2]+bleed,pageBounds[3]+bleed);
+            var bleedBound = new Array(pageBounds[0]-bleedTop,pageBounds[1]-bleedLef,pageBounds[2]+bleedBot,pageBounds[3]+bleedRig);
 
             myRect.geometricBounds = bleedBound;
         }

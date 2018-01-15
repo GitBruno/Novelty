@@ -17,7 +17,7 @@
 #target indesign;
 
 try{
-    var DOC = app.activeDocument;
+    var myDoc = app.activeDocument;
     var SPREAD = app.activeWindow.activeSpread;
     var SELECTION = [];
     if(app.selection.length != 0){
@@ -44,14 +44,14 @@ function main(){
     app.select(myItems);
     app.copy();
     myItems[0].remove();
-    //app.select(SELECTION);
 }
 
 function addRectangle( PAGE, LABEL ){
     var myRect = PAGE.rectangles.add();
         myRect.label = LABEL;
-        myRect.fillColor    = DOC.swatches.item("None");
-        myRect.strokeWeight = 0;
+        myRect.appliedObjectStyle = PAGE.parent.parent.objectStyles[0];
+        myRect.fillColor          = myDoc.swatches.item("None");
+        myRect.strokeWeight       = 0;
     return myRect;
 }
 
@@ -70,15 +70,15 @@ function fit2SpreadBleed(myRect){
     var pageBounds = [firstPageBounds[0],firstPageBounds[1],lastPageBounds[2],lastPageBounds[3]]; 
     var pageWidth = pageBounds[3]-pageBounds[1];
     
-    var bleedTop = DOC.documentPreferences.documentBleedTopOffset;
-    var bleedBot = DOC.documentPreferences.documentBleedBottomOffset;
+    var bleedTop = myDoc.documentPreferences.documentBleedTopOffset;
+    var bleedBot = myDoc.documentPreferences.documentBleedBottomOffset;
     
-    if(DOC.documentPreferences.facingPages) {
-        var bleedLef = DOC.documentPreferences.documentBleedOutsideOrRightOffset;
-        var bleedRig = DOC.documentPreferences.documentBleedOutsideOrRightOffset;
+    if(myDoc.documentPreferences.facingPages) {
+        var bleedLef = myDoc.documentPreferences.documentBleedOutsideOrRightOffset;
+        var bleedRig = myDoc.documentPreferences.documentBleedOutsideOrRightOffset;
     } else {
-        var bleedLef = DOC.documentPreferences.documentBleedInsideOrLeftOffset;
-        var bleedRig = DOC.documentPreferences.documentBleedOutsideOrRightOffset;
+        var bleedLef = myDoc.documentPreferences.documentBleedInsideOrLeftOffset;
+        var bleedRig = myDoc.documentPreferences.documentBleedOutsideOrRightOffset;
     }
 
     var bleedBound = new Array(pageBounds[0]-bleedTop,pageBounds[1]-bleedLef,pageBounds[2]+bleedBot,pageBounds[3]+bleedRig);
