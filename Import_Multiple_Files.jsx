@@ -1,4 +1,4 @@
-﻿// MultiPageImporter2.5.b jsx
+﻿// MultiPageImporter2.6.b jsx
 // An InDesign CS4 JavaScript
 // 28 MAR 2010
 // Copyright (C) 2008-2009 Scott Zanelli. lonelytreesw@gmail.com
@@ -23,7 +23,8 @@
 // Version 2.2.1: Page rotation. (12 MAR 2009)
 // Version 2.5: If PDF page count/size can't be determined, import all pages. Remove dependency on Verdana. (28 MAR 2010)
 // Version 2.5JJB: Added support for ID CS5 PDF importing. The PDFCrop constants used in IDCS5 are now supported (14 FEB 2011). See lines 126-139. //JJB         
-// Version 2.5.b: Added new document scale for easy page scaling and tag all placed frames for easy adjustment later (Unofficially by Bruno Herfst)
+// Version 2.6: Fixed a bug that would display a misleading error message ("This value would cause one or more objects to leave the pasteboard.") - mostly in cases where the default font size for a new text box would cause a 20x20 document units box to overflow
+// Version 2.6.b: Added new document scale for easy page scaling and tag all placed frames
 
 // Get app version and save old interation setting.
 // Some installs have the interaction level set to not show any dialogs.
@@ -519,6 +520,9 @@ function addPages(docStartPG, startPG, endPG)
 	
 		// Create a temporary text box to place graphic in (to use auto positioning and sizing)
 		var TB = theDoc.pages[i].textFrames.add({geometricBounds:[0,0,20,20]});
+		//decrease the font size of the newly inserted box to 0 to avoid a very misleading "out of pasteboard" error
+		//background: if the default font size of the ID document (set by default character style or default paragraph style) causes the text box to overflow it gives you an error saying ("This value would cause one or more objects to leave the pasteboard."). This mainly manifests in pixel based documents as the text box is only 20x20 px large in those cases.
+		TB.texts.firstItem().pointSize=1;
 		var theRect = TB.insertionPoints.firstItem().rectangles.add();
             theRect.label = "Multi_Page_Importer_Rect";
 		// Applying the object style and doing a recompose updates some objects that 
