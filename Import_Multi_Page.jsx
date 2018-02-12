@@ -1,4 +1,4 @@
-﻿// MultiPageImporter2.5.jsx
+﻿// MultiPageImporter2.6.b jsx
 // An InDesign CS4 JavaScript
 // 28 MAR 2010
 // Copyright (C) 2008-2009 Scott Zanelli. lonelytreesw@gmail.com
@@ -22,13 +22,15 @@
 // Version 2.2: Map pages to exisitng doc pages and reverse the page order options added. (05 MAR 2009)
 // Version 2.2.1: Page rotation. (12 MAR 2009)
 // Version 2.5: If PDF page count/size can't be determined, import all pages. Remove dependency on Verdana. (28 MAR 2010)
+// Version 2.5JJB: Added support for ID CS5 PDF importing. The PDFCrop constants used in IDCS5 are now supported (14 FEB 2011). See lines 126-139. //JJB         
+// Version 2.6: Fixed a bug that would display a misleading error message ("This value would cause one or more objects to leave the pasteboard.") - mostly in cases where the default font size for a new text box would cause a 20x20 document units box to overflow
+// Version 2.6.b: Added new document scale for easy page scaling and tag all placed frames
 
 // Get app version and save old interation setting.
 // Some installs have the interaction level set to not show any dialogs.
 // This is used to insure that the dialog is shown.
 
 #target indesign;
-
 
 var appVersion = parseInt(app.version);
 // Only works in CS3+
@@ -125,8 +127,21 @@ var fileName = File.decode(theFile.name);
 
 if(theFile.name.toLowerCase().indexOf(".pdf") != -1)
 {
-	var cropTypes = [PDFCrop.cropArt, PDFCrop.cropPDF, PDFCrop.cropTrim, PDFCrop.cropBleed, PDFCrop.cropMedia];
-	var cropStrings = ["Art","Crop","Trim","Bleed", "Media"];
+	// Premedia Systems/JJB Edit Start - 02/14/11 Modified PDFCrop constants to support ID CS3 through CS5 PDFCrop Types.
+	if (appVersion > 6)
+	{
+		// CS5 or newer
+		var cropTypes = [PDFCrop.cropPDF, PDFCrop.cropArt, PDFCrop.cropTrim, PDFCrop.cropBleed, PDFCrop.cropMedia, PDFCrop.cropContentAllLayers, PDFCrop.cropContentVisibleLayers];
+		var cropStrings = ["Crop","Art","Trim","Bleed", "Media","All Layers Bounding Box","Visible Layers Bounding Box"];
+	}
+	else
+	{
+		// CS3 or CS4
+		var cropTypes = [PDFCrop.cropContent, PDFCrop.cropArt, PDFCrop.cropPDF, PDFCrop.cropTrim, PDFCrop.cropBleed, PDFCrop.cropMedia];
+		var cropStrings = ["Bounding Box","Art","Crop","Trim","Bleed", "Media"];
+	}
+	// Premedia Systems/JJB Edit End
+	
 	// Parse the PDF file and extract needed info
 	try
 	{
@@ -160,6 +175,7 @@ else
 
 // If there is no document open, create a new one using the size of the
 // first encountered page
+var theDocIsMine = false; // Is the doc created by this script boolean
 if(app.documents.length == 0)
 {
 	// Save the app measurement units to restore after doc is created
@@ -187,6 +203,7 @@ if(app.documents.length == 0)
 
 	// Make the new doc:
 	var theDoc = app.documents.add();
+    theDocIsMine = true;
 	theDoc.documentPreferences.facingPages = false;
 	theDoc.marginPreferences.columnCount = 1;
 	theDoc.documentPreferences.pageWidth = placementINFO.pgSize.width;
@@ -312,6 +329,11 @@ theDoc.zeroPoint = [0,0];
 var oldRulerOrigin = theDoc.viewPreferences.rulerOrigin;
 // set the ruler origin to page or all PDFs will be placed on first page of spreads
 theDoc.viewPreferences.rulerOrigin = RulerOrigin.pageOrigin;
+
+if( theDocIsMine ) {
+    theDoc.documentPreferences.pageWidth  *= percX/100;
+    theDoc.documentPreferences.pageHeight *= percY/100;
+}
 
 // Get the Indy doc's height and width
 var docWidth = theDoc.documentPreferences.pageWidth;
@@ -498,8 +520,11 @@ function addPages(docStartPG, startPG, endPG)
 	
 		// Create a temporary text box to place graphic in (to use auto positioning and sizing)
 		var TB = theDoc.pages[i].textFrames.add({geometricBounds:[0,0,20,20]});
+		//decrease the font size of the newly inserted box to 0 to avoid a very misleading "out of pasteboard" error
+		//background: if the default font size of the ID document (set by default character style or default paragraph style) causes the text box to overflow it gives you an error saying ("This value would cause one or more objects to leave the pasteboard."). This mainly manifests in pixel based documents as the text box is only 20x20 px large in those cases.
+		TB.texts.firstItem().pointSize=1;
 		var theRect = TB.insertionPoints.firstItem().rectangles.add();
-			theRect.label = "Multi_Page_Importer_Rect";
+            theRect.label = "Multi_Page_Importer_Rect";
 		// Applying the object style and doing a recompose updates some objects that 
 		// the add method doesn't create in the rectangle object
 		theRect.appliedObjectStyle = tempObjStyle;
