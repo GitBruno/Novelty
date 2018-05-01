@@ -19,7 +19,6 @@ var the_document = app.documents.item(0);
 // Create a list of paragraph styles
 var list_of_paragraph_styles = [];
 var all_paragraph_styles = [];
-the_document.paragraphStyles.everyItem().name;
 	
 for(i = 0; i < the_document.paragraphStyles.length; i++) {
 	list_of_paragraph_styles.push(the_document.paragraphStyles[i].name);
@@ -29,8 +28,8 @@ for(i = 0; i < the_document.paragraphStyles.length; i++) {
 
 for(i = 0; i < the_document.paragraphStyleGroups.length; i++) {
 	for(b = 0; b < the_document.paragraphStyleGroups[i].paragraphStyles.length; b++) {
-		list_of_paragraph_styles.push(the_document.paragraphStyleGroups[i].name+'/'+the_document.paragraphStyleGroups[i].paragraphStyles[i].name);
-		all_paragraph_styles.push(the_document.paragraphStyleGroups[i].paragraphStyles[i]);
+		list_of_paragraph_styles.push(the_document.paragraphStyleGroups[i].name+'/'+the_document.paragraphStyleGroups[i].paragraphStyles[b].name);
+		all_paragraph_styles.push(the_document.paragraphStyleGroups[i].paragraphStyles[b]);
 	}
 }
 
@@ -56,6 +55,9 @@ with(the_dialog.dialogColumns.add()){
 		staticTexts.add({staticLabel:"followed by"});
 		var change_second_paragraph = dropdowns.add({stringList:list_of_paragraph_styles, selectedIndex:0});
 	}
+	with(dialogRows.add()){
+		var searchDoc = checkboxControls.add({ staticLabel : 'All stories', checkedState : false });
+	}
 }
 
 if(the_dialog.show()){
@@ -80,8 +82,13 @@ if(the_dialog.show()){
 	app.findGrepPreferences.appliedParagraphStyle = find_first_paragraph;
 	app.findGrepPreferences.findWhat = "$";
 
-	//Search the current story
-	var the_story = app.selection[0].parentStory;
+	// Search scope
+	if(searchDoc.checkedState) {
+		var the_story = app.selection[0].parentStory;
+	} else {
+		var the_story = the_document;
+	}
+
 	var found_paragraphs = the_story.findGrep();
 
 	var change_first_list = [];
