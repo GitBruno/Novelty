@@ -13,7 +13,7 @@ try {app.doScript (get_script ())}
 function get_script ()
     {
     var script_dir = find_script_dir();
-    var fstring = script_dir + "/runscript-last.txt";
+    var fstring = script_dir + "/.Run_Script_History.txt";
     var history = get_history (fstring);
     if (history.length > 0)
         {
@@ -121,10 +121,10 @@ function get_script ()
             store_history (fstring, script, history, filter_check.value, keep_filter.value, filter);
 
             for(var i = 0; i < scripts.name.length; i++) {
-			  if(scripts.name[i] == script) {
-				return scripts.path[i];
-			  }
-			}
+              if(scripts.name[i] == script) {
+                return scripts.path[i];
+              }
+            }
             return null;
             }
     } // function drop_typeahead
@@ -136,29 +136,29 @@ function get_scripts (script_dir) {
     files.name = new Array();
 
     var fileList = getAllFiles(script_dir),
-	i, file;
+    i, file;
 
     for (i = 0; i < fileList.length; i++) {
-    	file = fileList[i];
-    	if (file instanceof File && file.name.match(/\.jsx?$/i)) {
-    		if(!file.name.match(/runscript.jsx/i)){
-				files.path.push(file);
-				files.name.push(file.name);
-			}
-		}
+        file = fileList[i];
+        if (file instanceof File && file.name.match(/\.jsx?$/i)) {
+            if(!file.name.match(/runscript.jsx/i)){
+                files.path.push(file);
+                files.name.push(file.name);
+            }
+        }
     }
     return files
 }
 
 function getAllFiles(thisDir){
-	var fileList = Folder (thisDir).getFiles(),
-	i, file;
+    var fileList = Folder (thisDir).getFiles(),
+    i, file;
 
     for (i = 0; i < fileList.length; i++) {
-    	file = fileList[i];
-    	if (file instanceof Folder) {
-			fileList = fileList.concat(getAllFiles(file));
-		}
+        file = fileList[i];
+        if (file instanceof Folder) {
+            fileList = fileList.concat(getAllFiles(file));
+        }
     }
     return fileList;
 }

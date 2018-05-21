@@ -25,7 +25,7 @@ if( app.documents.length &&
 	app.activeDocument.textPreferences.enableStylePreviewMode^= 1 &&
 	app.layoutWindows.length &&
 	app.activeWindow.constructor==LayoutWindow){
-
+        //app.activeDocument.paragraphStyles.item("Paragraph Style 1").previewColor = UIColors.YELLOW;  
 		app.activeWindow.screenMode = ScreenModeOptions.previewOff;
 		// UPDATE [100525] - THX to ptruskier
 		app.activeWindow.overprintPreview = false;
