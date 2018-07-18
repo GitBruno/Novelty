@@ -1,3 +1,10 @@
+// Frame Splits Story
+
+// Same as StorySplitter by FourAces but removed UI
+// Automatically unlinks/splits to frame boundry
+// Sugested shortcut: Ctr-F
+// Bruno Herfst 2018
+
 /*
 ----------------------------------------------------------------------
 StorySplitter
@@ -10,37 +17,14 @@ Splits the selected Story to separate Text Frames, while maintaining their conte
 ----------------------------------------------------------------------
 */
 
-// Adjusted by Bruno Herfst to suit needs
-// 1. Return to selected frame page
-// Don't have time for this now but it would be good if there was an option for style based splitting.
-// Will proberbly have to write from scratch to avoid the App.c
-
 #target indesign;
 
-var myScriptVer = "3.0";
-
-function mySplitAll() {
-     for(i = 0; i < myStoryFramesCount; i++){
-          myTextFrames[i].duplicate();
-     }
-     for(i = 0; i < myStoryFramesCount; i++){
-          if(app.version.split(".")[0] >= 5){
-               myTextFrames[i].remove();
-          }
-          else{
-               myTextFrames[0].remove();
-          }
-     }
-}
-
-function mySplitBefore(){
-     if(mySelection[0].previousTextFrame == null){
-          alert("Unable to break thread.\nThe selected Text Frame is the FIRST text frame of the thread.");
-     } else {
-          var myBfBreakFrame = mySelection[0].previousTextFrame;
-          var myAfBreakFrame = mySelection[0];
+function splitStoryAtFrame( tf ){
+     if (tf.previousTextFrame !== null){
+          var myBfBreakFrame = tf.previousTextFrame;
+          var myAfBreakFrame = tf;
           var myBreakStory = myBfBreakFrame.parentStory;
-          mySelection[0].previousTextFrame = null;
+          tf.previousTextFrame = null;
           if(myBfBreakFrame.overflows == true){
                var myOversetText = myBreakStory.texts.itemByRange(myBfBreakFrame.insertionPoints[-1],myBreakStory.insertionPoints[-1]);
                myOversetText.select();
@@ -48,18 +32,12 @@ function mySplitBefore(){
                app.select(myAfBreakFrame.insertionPoints[0]);
                app.paste();
           }
-     }
-}
- 
- 
-function mySplitAfter() {
-     if (mySelection[0].nextTextFrame == null) {
-          alert("Unable Break Thread.\nThe selected Text Frame is the LAST text frame of the thread.");
-     } else {
-          var myBfBreakFrame = mySelection[0];
-          var myAfBreakFrame = mySelection[0].nextTextFrame;
+     };
+     if (tf.nextTextFrame !== null) {
+          var myBfBreakFrame = tf;
+          var myAfBreakFrame = tf.nextTextFrame;
           var myBreakStory = myBfBreakFrame.parentStory;
-          mySelection[0].nextTextFrame = null;
+          tf.nextTextFrame = null;
           if(myBfBreakFrame.overflows == true){
                var myOversetText = myBreakStory.texts.itemByRange(myBfBreakFrame.insertionPoints[-1],myBreakStory.insertionPoints[-1]);
                myOversetText.select();
@@ -67,76 +45,30 @@ function mySplitAfter() {
                app.select(myAfBreakFrame.insertionPoints[0]);
                app.paste();
           }
-     }
-}
-
-//---------------------------------------------------------------------
+     };
+};
 
 if(app.documents.length != 0){
      var mySelection = app.activeDocument.selection;
-     if(mySelection.length != 0){
-          myObjectType = mySelection[0].constructor.name;
-          if(myObjectType == "TextFrame"){
-               var returnPage = mySelection[0].parentPage;
-               //The Interface Dialog
-               var myDialog = app.dialogs.add({name:"Story Splitter v"+ myScriptVer});
-               with(myDialog){
-                    with(dialogColumns.add()){
-                         with (dialogRows.add()){
-                              with(borderPanels.add()){
-                                   var mySplitOptions = radiobuttonGroups.add();
-                                   with(mySplitOptions){
-                                        radiobuttonControls.add({staticLabel:"Split All Frames"});
-                                        radiobuttonControls.add({staticLabel:"Split Before Selected Frame", checkedState:true});
-                                        radiobuttonControls.add({staticLabel:"Split After Selected Frame"});
-                                   }
-                              }
-                         }
-                         with (dialogRows.add()){
-                              staticTexts.add({staticLabel:"© The Final Touch"});
-                         }
-                    }
-               
-                    var myResult = myDialog.show({name:"SplitOptions"});
-                    if(myResult == true){
-                         var myStory = mySelection[0].parentStory;
-                         if(app.version.split(".")[0] >= 5){
-                              var myTextFrames = myStory.textContainers;
-                         } else {
-                              var myTextFrames = myStory.textFrames;
-                         }
-                         var myStoryFramesCount = myTextFrames.length;
-                         if(myStoryFramesCount > 1){
-                              for(f = 0; f < myStoryFramesCount; f++){
-                                   if (mySelection[0] == myStory.textFrames[f]){
-                                        var myTextFrame = f;
-                                   }
-                              }
-                              switch(mySplitOptions.selectedButton){
-                                   case 0:
-                                        mySplitAll();
-                                        break;
-                                   case 1:
-                                        mySplitBefore();
-                                        break;
-                                   case 2:
-                                        mySplitAfter();
-                                        break;
-                              }
-                              app.activeWindow.activePage = returnPage;
-                              alert("Done!");
-                         } else {
-                              alert("Are You Kidding Me?!\nThe Story you selected has only ONE text frame.");
-                         }
-                    }
-               }
-          } else {
-               alert("Wrong Selection\nYou selected the wrong type of object. Please select a Text Frame.");
-          }
+     var myTextFrames = [];
+     var returnPage = mySelection[0].parentPage;
+
+     // Collect textFrames in selection
+     for (var i = 0; i < mySelection.length; i++) {
+          if(mySelection[i].constructor.name === "TextFrame"){
+               myTextFrames.push(mySelection[i]);
+          };
+	};
+
+     if(myTextFrames.length > 0){
+		for (var i = 0; i < myTextFrames.length; i++) { 
+			splitStoryAtFrame( myTextFrames[i] );
+		};
+		app.activeWindow.activePage = returnPage;
+		alert("Done!");
      } else {
-          alert("No Selection Made.\nPlease select a Story to split.");
+          alert("Please select at least one Text Frame to split.");
      }
 } else {
-     alert("No Active Document Found.\nPlease open an InDesign document and select a Story to split.");
-} // EOF
-
+     alert("No Active Document Found.\nPlease open an InDesign document and select a Text Frame to split.");
+};
