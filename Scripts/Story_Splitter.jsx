@@ -22,7 +22,6 @@ Splits the selected Story to separate Text Frames, while maintaining their conte
 
 function mySplitAll( tFrames ) {
     var len = tFrames.length;
-    alert(len);
     if (len === 1) return;
     for(var i = 0; i < len; i++){
        tFrames[i].duplicate();
