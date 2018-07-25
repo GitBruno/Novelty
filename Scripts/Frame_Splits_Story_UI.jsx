@@ -13,23 +13,17 @@ Splits the selected Story to separate Text Frames, while maintaining their conte
 // Adjusted by Bruno Herfst to suit needs
 // 1. Return to selected frame page
 // Don't have time for this now but it would be good if there was an option for style based splitting.
-// Will proberbly have to write from scratch to avoid the App.c
 
 #target indesign;
 
 var myScriptVer = "3.0";
 
 function mySplitAll() {
-     for(i = 0; i < myStoryFramesCount; i++){
-          myTextFrames[i].duplicate();
+     for(var i = 0; i < myStoryFramesCount; i++){
+         myTextFrames[i].duplicate();
      }
-     for(i = 0; i < myStoryFramesCount; i++){
-          if(app.version.split(".")[0] >= 5){
-               myTextFrames[i].remove();
-          }
-          else{
-               myTextFrames[0].remove();
-          }
+     for(var i = 0; i < myStoryFramesCount; i++){
+         myTextFrames[i].remove();
      }
 }
 
