@@ -27,6 +27,8 @@ var AllSettings = {
         addWordBaselineShift : [0,0],
         paragraphStyle       : "[None]",
         characterStyle       : "[None]",
+        paragraphColorGroup  : "[None]",
+        characterColorGroup  : "[None]"
     }
 }
 
@@ -50,6 +52,10 @@ function main(){
     // Create a list of character styles
     var list_of_All_character_styles = myDoc.characterStyles.everyItem().name;
     list_of_All_character_styles.unshift("[Any character style]");
+    // Create a list of color groups.
+    var list_of_All_color_groups = myDoc.colorGroups.everyItem().name;
+    list_of_All_color_groups.unshift("[None]");
+
     // Create a list of locations
     var list_of_All_locations = ["Current Document"];
 
@@ -97,22 +103,30 @@ function main(){
                 var c = checkboxControls.add({ staticLabel : 'Set Characters:\t', checkedState : Settings.doCharacters });
                 with(dialogRows.add()){
                     var charSizeMin = measurementEditboxes.add({editUnits: MeasurementUnits.POINTS,editValue:Settings.addCharSize[0]});
-                    staticTexts.add({staticLabel:"Min Size"});
+                    staticTexts.add({staticLabel:"Min Offset"});
                 }
                 with(dialogRows.add()){
                     var charSizeMax = measurementEditboxes.add({editUnits:MeasurementUnits.POINTS,editValue:Settings.addCharSize[1]});
-                    staticTexts.add({staticLabel:"Max Size"});
+                    staticTexts.add({staticLabel:"Max Offset"});
+                }
+                with(dialogRows.add()){
+                   var charColour = dropdowns.add({stringList:list_of_All_color_groups, selectedIndex:0});
+                    staticTexts.add({staticLabel:"Color Group"}); 
                 }
             }
             with(dialogColumns.add()){
                 var w = checkboxControls.add({ staticLabel : 'Set Words:\t', checkedState : Settings.doWords });
                 with(dialogRows.add()){
                     var wordSizeMin = measurementEditboxes.add({editUnits: MeasurementUnits.POINTS,editValue:Settings.addWordSize[0]});
-                    staticTexts.add({staticLabel:"Min Size"});
+                    staticTexts.add({staticLabel:"Min Offset"});
                 }
                 with(dialogRows.add()){
                     var wordSizeMax = measurementEditboxes.add({editUnits:MeasurementUnits.POINTS,editValue:Settings.addWordSize[1]});
-                    staticTexts.add({staticLabel:"Max Size"});
+                    staticTexts.add({staticLabel:"Max Offset"});
+                }
+                with(dialogRows.add()){
+                   var wordColour = dropdowns.add({stringList:list_of_All_color_groups, selectedIndex:0});
+                    staticTexts.add({staticLabel:"Color Group"}); 
                 }
             }
             var myCent = checkboxControls.add({ staticLabel : 'Center', checkedState : Settings.v_center });
@@ -122,14 +136,14 @@ function main(){
     //show dialog
     if(dlg.show() == true){
         //get dialog data
+        Settings.doCharacters    = c.checkedState;
+        Settings.doWords         = w.checkedState;
         Settings.resetBaseline   = true;
         Settings.v_center        = myCent.checkedState;
         Settings.addCharSize[0]  = charSizeMin.editValue;
         Settings.addCharSize[1]  = charSizeMax.editValue;
         Settings.addWordSize[0]  = wordSizeMin.editValue;
         Settings.addWordSize[1]  = wordSizeMax.editValue;
-        Settings.doCharacters    = c.checkedState;
-        Settings.doWords         = w.checkedState;
         Settings.location        = find_locations.stringList[find_locations.selectedIndex];
 
         // Set selected styles
