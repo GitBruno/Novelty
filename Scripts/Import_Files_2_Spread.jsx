@@ -1,5 +1,5 @@
 // Import_Files_2_Spread.jsx
-// An InDesign javascript to place exported layers from Photoshop into InDesign.
+// Place exported layers from Photoshop onto a single spread layered in InDesign.
 // Version 1.0
 // Bruno Herfst 2018
 

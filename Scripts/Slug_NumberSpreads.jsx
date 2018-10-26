@@ -4,6 +4,8 @@
 
 // Bruno Herfst 2018
 
+// TODO: Support for layer/ layer locked
+
 var keyValue = "spreadNumberScriptLabel";
 
 var Settings = {
