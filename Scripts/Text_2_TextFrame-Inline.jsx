@@ -145,8 +145,8 @@ function setRedraw(myOriginalPrefs){
             app.activeWindow.viewDisplaySetting = myOriginalPrefs.viewDisplaySetting;
             app.scriptPreferences.enableRedraw = myOriginalPrefs.enableRedraw;
             return myOldRedrawPrefs;
-        }
-    }
+        };
+    };
 
     app.scriptPreferences.enableRedraw = false;
 
@@ -155,10 +155,10 @@ function setRedraw(myOriginalPrefs){
         app.activeWindow.viewDisplaySetting = ViewDisplaySettings.OPTIMIZED ;
     } else { //-- Otherwise switch to Typical as it is the second fastest.
         app.activeWindow.viewDisplaySetting = ViewDisplaySettings.TYPICAL ;
-    }
+    };
 
     return myOldRedrawPrefs;
-}
+};
 
 function main(selection){
     // This makes sure it runs a bit quicker
@@ -210,7 +210,7 @@ function main(selection){
     } catch(err) {
         alert("OOPS! Can't fit the new frame!\nPlease make the frame bigger and try again.");
         exit();
-    }
+    };
 
     tf.absoluteRotationAngle = randomInRange(Settings.rotation[0],Settings.rotation[1]);
 
@@ -234,9 +234,9 @@ function main(selection){
         for (var i = 0; i < tf.characters.length; i++) {
             tf.characters[i].pointSize     += randomInRange(Settings.fontSizeAdjust[0],    Settings.fontSizeAdjust[1]);
             tf.characters[i].baselineShift += randomInRange(Settings.textBaselineShift[0], Settings.textBaselineShift[1]);
-        }
+        };
         
-    }
+    };
 
     
     if(Settings.objectStyleName) {
@@ -246,25 +246,25 @@ function main(selection){
             if(userNeverGotObjectStyleAlert){
                 alert("Could not set object Style");
                 userNeverGotObjectStyleAlert = false;
-            }
-        }
-    }
+            };
+        };
+    };
 
     // Done! Reset the preview and rulers.
     fixPreviewBug(selection.parentTextFrames[0]);
     // Reset rulers
     setRulerUnits(originalRulerUnits);
     setRedraw(myOriginalRedraw);
-}
+};
 
 function getFrameDimensions(frame){
     var b = frame.geometricBounds;
     return [ b[3]-b[1] , b[2]-b[0] ];
-}
+};
 
 function randomInRange(start,end){
     return Math.random() * (end - start) + start;
-}
+};
 
 function getOpposite(hypotenuse, angle){
     //                 .
@@ -272,15 +272,15 @@ function getOpposite(hypotenuse, angle){
     //     angle --> /_|
     //
     return Math.sin(toRadians(angle))*hypotenuse;
-}
+};
 
 function toDegrees (angle) {
   return angle * (180 / Math.PI);
-}
+};;
 
 function toRadians (angle) {
   return angle * (Math.PI / 180);
-}
+};
 
 function fixPreviewBug(TF){
     var NEWTFBOUNDS = TF.geometricBounds;
@@ -288,12 +288,12 @@ function fixPreviewBug(TF){
     TF.geometricBounds = NEWTFBOUNDS;
     NEWTFBOUNDS[0] -= 1;
     TF.geometricBounds = NEWTFBOUNDS;
-}
+};
 
 function setRulerUnits(rulerUnits){
     myDoc.viewPreferences.horizontalMeasurementUnits = rulerUnits[0];
     myDoc.viewPreferences.verticalMeasurementUnits   = rulerUnits[0];
-}
+};
 
 function styleFrame(Settings, frame){
     frame.endCap       = EndCap.ROUND_END_CAP;
@@ -303,12 +303,12 @@ function styleFrame(Settings, frame){
     frame.strokeTint   = randomInRange(Settings.strokeTint[0],Settings.strokeTint[1]);
     frame.strokeWeight = Settings.strokeWeight;
     frame.strokeColor  = Settings.strokeColor;
-}
+};
 
 function removeIndents(textFrame){
     textFrame.texts[0].leftIndent = 0;
     textFrame.texts[0].rightIndent = 0;
-}
+};
 
 function run() {
     if (app.selection.length == 1){
@@ -322,23 +322,23 @@ function run() {
                 if(Settings.moveSingleCharacters){
                     for(i=app.selection[0].characters.length-1; i>=0 ; i--){
                         main(app.selection[0].characters[i]);
-                    }
+                    };
                 } else if(Settings.moveSingleWords){
                     for(i=app.selection[0].words.length-1; i>=0 ; i--){
                         main(app.selection[0].words[i]);
-                    }
+                    };
                 } else {
                     main(app.selection[0]);
-                }
+                };
                 break;
             default:
-                alert("This is a "+ app.selection[0].constructor.name +"\nSelect some text or a textframe and try again.");
+                alert("This is a "+ app.selection[0].constructor.name +"\nSelect some text or a textFrame and try again.");
                 break;
-        }
+        };
     } else {
-        alert("Select a textframe and try again.");
-    }
-}
+        alert("Please select a single Text or textFrame");
+    };
+};
 
 if(app.documents.length != 0){
     //global vars
@@ -350,11 +350,11 @@ if(app.documents.length != 0){
         run();
       } else {
         app.doScript(run, ScriptLanguage.JAVASCRIPT, undefined, UndoModes.ENTIRE_SCRIPT, "Expand State Abbreviations");
-      }
+      };
       // Global error reporting
     } catch ( error ) {
-      alert("I'm having trouble creating a quality barcode:\n" + error + " (Line " + error.line + " in file " + error.fileName + ")");
-    }
+      alert("Oops, something went wrong:\n" + error + " (Line " + error.line + " in file " + error.fileName + ")");
+    };
 }else{
     alert("Please open a document and try again.");
-}
+};
