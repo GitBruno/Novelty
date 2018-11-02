@@ -8,14 +8,15 @@
     This script sets every character between two values
 
     NOTE:
-    Colour to be added later
+    Color to be added later
 
 */
 
 #target InDesign
+var myDoc, AllSettings, Settings, colorCounter;
 
 //global variables
-var AllSettings = {
+AllSettings = {
     Foodpedia_receipe : {
         name                 : "Foodpedia Receipe",
         doCharacters         : true,
@@ -30,9 +31,10 @@ var AllSettings = {
         paragraphColorGroup  : "[None]",
         characterColorGroup  : "[None]"
     }
-}
+};
 
-var Settings = AllSettings.Foodpedia_receipe;
+Settings = AllSettings.Foodpedia_receipe;
+colorCounter = 0;
 
 //Make certain that user interaction (display of dialogs, etc.) is turned on.
 app.scriptPreferences.userInteractionLevel = UserInteractionLevels.interactWithAll;
@@ -44,7 +46,7 @@ if (app.documents.length != 0){
 
 //============================================== FUNCTIONS =====================================================
 function main(){
-    var myDoc = app.activeDocument;
+    myDoc = app.activeDocument;
 
     // Create a list of paragraph styles
     var list_of_All_paragraph_styles = myDoc.paragraphStyles.everyItem().name;
@@ -54,7 +56,7 @@ function main(){
     list_of_All_character_styles.unshift("[Any character style]");
     // Create a list of color groups.
     var list_of_All_color_groups = myDoc.colorGroups.everyItem().name;
-    list_of_All_color_groups.unshift("[None]");
+    list_of_All_color_groups.unshift("[ Not today ]");
 
     // Create a list of locations
     var list_of_All_locations = ["Current Document"];
@@ -104,64 +106,69 @@ function main(){
                 with(dialogRows.add()){
                     var charSizeMin = measurementEditboxes.add({editUnits: MeasurementUnits.POINTS,editValue:Settings.addCharSize[0]});
                     staticTexts.add({staticLabel:"Min Offset"});
-                }
+                };
                 with(dialogRows.add()){
                     var charSizeMax = measurementEditboxes.add({editUnits:MeasurementUnits.POINTS,editValue:Settings.addCharSize[1]});
                     staticTexts.add({staticLabel:"Max Offset"});
-                }
-                with(dialogRows.add()){
-                   var charColour = dropdowns.add({stringList:list_of_All_color_groups, selectedIndex:0});
-                    staticTexts.add({staticLabel:"Color Group"}); 
-                }
-            }
+                };
+            };
             with(dialogColumns.add()){
                 var w = checkboxControls.add({ staticLabel : 'Set Words:\t', checkedState : Settings.doWords });
                 with(dialogRows.add()){
                     var wordSizeMin = measurementEditboxes.add({editUnits: MeasurementUnits.POINTS,editValue:Settings.addWordSize[0]});
                     staticTexts.add({staticLabel:"Min Offset"});
-                }
+                };
                 with(dialogRows.add()){
                     var wordSizeMax = measurementEditboxes.add({editUnits:MeasurementUnits.POINTS,editValue:Settings.addWordSize[1]});
                     staticTexts.add({staticLabel:"Max Offset"});
-                }
-                with(dialogRows.add()){
-                   var wordColour = dropdowns.add({stringList:list_of_All_color_groups, selectedIndex:0});
-                    staticTexts.add({staticLabel:"Color Group"}); 
-                }
-            }
+                };
+            };
             var myCent = checkboxControls.add({ staticLabel : 'Center', checkedState : Settings.v_center });
-        }
-    }
+        };
+
+        with(dialogRows.add()){
+            with(dialogColumns.add()){
+                with(dialogRows.add()){
+                    staticTexts.add({staticLabel:"Use colors"});
+                    var colorSelection = dropdowns.add({stringList:list_of_All_color_groups, selectedIndex:0}); 
+                    var colorLoop      = dropdowns.add({stringList:["Loop","Random"], selectedIndex:0}); 
+                };
+            };
+        };
+    };
 
     //show dialog
     if(dlg.show() == true){
         //get dialog data
-        Settings.doCharacters    = c.checkedState;
-        Settings.doWords         = w.checkedState;
-        Settings.resetBaseline   = true;
-        Settings.v_center        = myCent.checkedState;
-        Settings.addCharSize[0]  = charSizeMin.editValue;
-        Settings.addCharSize[1]  = charSizeMax.editValue;
-        Settings.addWordSize[0]  = wordSizeMin.editValue;
-        Settings.addWordSize[1]  = wordSizeMax.editValue;
-        Settings.location        = find_locations.stringList[find_locations.selectedIndex];
+        Settings.doCharacters   = c.checkedState;
+        Settings.doWords        = w.checkedState;
+        Settings.resetBaseline  = true;
+        Settings.v_center       = myCent.checkedState;
+        Settings.addCharSize[0] = charSizeMin.editValue;
+        Settings.addCharSize[1] = charSizeMax.editValue;
+        Settings.addWordSize[0] = wordSizeMin.editValue;
+        Settings.addWordSize[1] = wordSizeMax.editValue;
+        Settings.location       = find_locations.stringList[find_locations.selectedIndex];
+        Settings.colorGroup     = colorSelection.stringList[colorSelection.selectedIndex];
+        Settings.colorLoop      = colorLoop.stringList[colorLoop.selectedIndex];
+        Settings.useColor       = (colorSelection.selectedIndex !== 0)? true : false;
 
         // Set selected styles
         if (find_paragraph.selectedIndex == 0) {
             Settings.paragraphStyle = false;
         } else {
             Settings.paragraphStyle = myDoc.paragraphStyles.item(find_paragraph.selectedIndex-1);
-        }
+        };
         if (find_charStyle.selectedIndex == 0) {
             Settings.characterStyle = false;
         } else {
             Settings.characterStyle = myDoc.characterStyles.item(find_charStyle.selectedIndex-1);
-        }
+        };
 
         if(Settings.doCharacters == false && Settings.doWords == false){
             alert("Did you meant to press cancel?");
             exit();
-        }
+        };
 
         app.findChangeGrepOptions.includeFootnotes            = false;
         app.findChangeGrepOptions.includeHiddenLayers         = false;
@@ -176,21 +183,21 @@ function main(){
             app.findGrepPreferences.findWhat = ".+";
         } else {
             app.findGrepPreferences.findWhat = NothingEnum.nothing;
-        }
+        };
 
         if(Settings.paragraphStyle == false){
             app.findGrepPreferences.appliedParagraphStyle = NothingEnum.nothing;
         } else {
             //this can throw an error if multi-find/change plugin is open
             app.findGrepPreferences.appliedParagraphStyle = Settings.paragraphStyle;
-        }
+        };
 
         if(Settings.characterStyle == false){
             app.findGrepPreferences.appliedCharacterStyle = NothingEnum.nothing;
         } else {
             //this can throw an error if multi-find/change plugin is open
             app.findGrepPreferences.appliedCharacterStyle = Settings.characterStyle;
-        }
+        };
 
         //Search
         switch(Settings.location){
@@ -232,8 +239,8 @@ function main(){
         dlg.destroy();
     } else {
         //cancel
-    }
-}
+    };
+};
 
 //-------------------------------------------------------------------------------------------------------------
 function setCharOrWord( fText, Settings ){
@@ -243,32 +250,45 @@ function setCharOrWord( fText, Settings ){
     if(Settings.doCharacters) {
         setText(fText.characters, Settings);
     }
-}
+};
 
 function setText( mySection, Settings ){
+    var swatchGroup = myDoc.colorGroups.itemByName(Settings.colorGroup).colorGroupSwatches;
+    var swatchLen   = swatchGroup.length;
 
     var len = mySection.length;
     for (var i=0; i < len; i++){
-         try{
+        try{
             var myText = mySection[i];
             var mySizeAdjust = 0;
 
             if( (Math.abs(Settings.addCharSize[0]) + Math.abs(Settings.addCharSize[1])) > 0 ) {
                 mySizeAdjust = randomInRange( Settings.addCharSize[0], Settings.addCharSize[1] );
                 myText.pointSize += mySizeAdjust;
-            }
+            };
+
             if(Settings.resetBaseline){
                 if(mySizeAdjust != 0) {
                     myText.baselineShift -= mySizeAdjust/2;
                 } else {
                     myText.baselineShift = 0;
-                }
+                };
             } else {
                 if(mySizeAdjust != 0 && Settings.v_center) {
-                    myText.baselineShift  -= mySizeAdjust/2;
-                }
-            }
-         }catch(r){
+                    myText.baselineShift -= mySizeAdjust/2;
+                };
+            };
+
+            if(Settings.useColor){
+                if(Settings.colorLoop === "Loop"){
+                    colorCounter++;
+                    myText.fillColor = swatchGroup[colorCounter%swatchLen].swatchItemRef;
+                } else {
+                    myText.fillColor = swatchGroup[Math.floor(randomInRange( 0, swatchLen ))].swatchItemRef;
+                };
+            };
+
+        }catch(r){
             alert(r.description);
             break;
         }
