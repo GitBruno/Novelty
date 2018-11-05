@@ -3,16 +3,19 @@
     Letter_Jitter.jsx
     Version 1.0
 
-    Bruno Herfst 2017
+    Bruno Herfst 2017–2018
 
     This script sets every character between two values
 
-    NOTE:
-    Color to be added later
+    NOTES:
+    1. Add presets
+    2. Add separate color Characters/Words option
 
 */
 
 #target InDesign
+var doneAlert = false;
+
 var myDoc, AllSettings, Settings, colorCounter;
 
 //global variables
@@ -22,27 +25,55 @@ AllSettings = {
         doCharacters         : true,
         doWords              : true,
         v_center             : true,
+        resetBaseline        : true,
         addCharSize          : [-1,1],
         addWordSize          : [0,2],
         addCharBaselineShift : [0,0],
         addWordBaselineShift : [0,0],
         paragraphStyle       : "[None]",
         characterStyle       : "[None]",
-        paragraphColorGroup  : "[None]",
-        characterColorGroup  : "[None]"
+        useColor             : false,
+        colorGroup           : "[None]",
+        colorLoop            : "Random"
+    },
+    Meerkat_Splash_C : {
+        name                 : "Foodpedia Receipe",
+        doCharacters         : false,
+        doWords              : true,
+        v_center             : true,
+        resetBaseline        : true,
+        addCharSize          : [0,0],
+        addWordSize          : [0,3],
+        addCharBaselineShift : [0,0],
+        addWordBaselineShift : [0,0],
+        paragraphStyle       : "[None]",
+        characterStyle       : "[None]",
+        useColor             : true,
+        colorGroup           : "p rand",
+        colorLoop            : "Random"
     }
 };
 
-Settings = AllSettings.Foodpedia_receipe;
+Settings = AllSettings.Meerkat_Splash_C;
 colorCounter = 0;
 
 //Make certain that user interaction (display of dialogs, etc.) is turned on.
 app.scriptPreferences.userInteractionLevel = UserInteractionLevels.interactWithAll;
-if (app.documents.length != 0){
-    main();
-}else{
+// Single undo and error includes line number
+if (app.documents.length != 0) {
+    try {
+      // Run script with single undo if supported
+      if (parseFloat(app.version) < 6) {
+        main();
+      } else {
+        app.doScript(main, ScriptLanguage.JAVASCRIPT, undefined, UndoModes.ENTIRE_SCRIPT, "Expand State Abbreviations");
+      };
+    } catch ( error ) {
+      alert( error + " (Line " + error.line + " in file " + error.fileName + ")");
+    };
+} else {
     alert("Open a document first before running this script.");
-}
+};
 
 //============================================== FUNCTIONS =====================================================
 function main(){
@@ -56,8 +87,9 @@ function main(){
     list_of_All_character_styles.unshift("[Any character style]");
     // Create a list of color groups.
     var list_of_All_color_groups = myDoc.colorGroups.everyItem().name;
-    list_of_All_color_groups.unshift("[ Not today ]");
-
+    list_of_All_color_groups.unshift("[None]");
+    // Create a list of color loop directions.
+    var list_of_All_color_loops = ["Loop","Random"];
     // Create a list of locations
     var list_of_All_locations = ["Current Document"];
 
@@ -123,7 +155,6 @@ function main(){
                     staticTexts.add({staticLabel:"Max Offset"});
                 };
             };
-            var myCent = checkboxControls.add({ staticLabel : 'Center', checkedState : Settings.v_center });
         };
 
         with(dialogRows.add()){
@@ -131,8 +162,13 @@ function main(){
                 with(dialogRows.add()){
                     staticTexts.add({staticLabel:"Use colors"});
                     var colorSelection = dropdowns.add({stringList:list_of_All_color_groups, selectedIndex:0}); 
-                    var colorLoop      = dropdowns.add({stringList:["Loop","Random"], selectedIndex:0}); 
+                    colorSelection.selectedIndex = getIndex(Settings.colorGroup,list_of_All_color_groups);
+                    staticTexts.add({staticLabel:": "});
+                    var colorLoop      = dropdowns.add({stringList:list_of_All_color_loops, selectedIndex:0});
+                    colorLoop.selectedIndex = getIndex(Settings.colorLoop,list_of_All_color_loops);
                 };
+                var myReset = checkboxControls.add({ staticLabel : 'Reset baseline', checkedState : Settings.v_center });
+                var myCent  = checkboxControls.add({ staticLabel : 'Center baseline offset', checkedState : Settings.v_center });
             };
         };
     };
@@ -142,7 +178,7 @@ function main(){
         //get dialog data
         Settings.doCharacters   = c.checkedState;
         Settings.doWords        = w.checkedState;
-        Settings.resetBaseline  = true;
+        Settings.resetBaseline  = myReset.checkedState;
         Settings.v_center       = myCent.checkedState;
         Settings.addCharSize[0] = charSizeMin.editValue;
         Settings.addCharSize[1] = charSizeMax.editValue;
@@ -234,7 +270,9 @@ function main(){
         if(myMessage == false){
             var myMessage = "Done!";
         }
-        alert(myMessage);
+        if(doneAlert){
+            alert(myMessage);
+        };
         //the end
         dlg.destroy();
     } else {
@@ -246,15 +284,18 @@ function main(){
 function setCharOrWord( fText, Settings ){
     if(Settings.doWords) {
         setText(fText.words, Settings);
-    }
+    };
     if(Settings.doCharacters) {
         setText(fText.characters, Settings);
-    }
+    };
 };
 
 function setText( mySection, Settings ){
-    var swatchGroup = myDoc.colorGroups.itemByName(Settings.colorGroup).colorGroupSwatches;
-    var swatchLen   = swatchGroup.length;
+    var swatchGroup, swatchLen;
+    if(Settings.useColor){
+        swatchGroup = myDoc.colorGroups.itemByName(Settings.colorGroup).colorGroupSwatches;
+        swatchLen   = swatchGroup.length;
+    };
 
     var len = mySection.length;
     for (var i=0; i < len; i++){
@@ -262,21 +303,26 @@ function setText( mySection, Settings ){
             var myText = mySection[i];
             var mySizeAdjust = 0;
 
-            if( (Math.abs(Settings.addCharSize[0]) + Math.abs(Settings.addCharSize[1])) > 0 ) {
-                mySizeAdjust = randomInRange( Settings.addCharSize[0], Settings.addCharSize[1] );
-                myText.pointSize += mySizeAdjust;
+            if(Settings.doWords) {
+                if( (Math.abs(Settings.addWordSize[0]) + Math.abs(Settings.addWordSize[1])) > 0 ) {
+                    mySizeAdjust = randomInRange( Settings.addWordSize[0], Settings.addWordSize[1] );
+                    myText.pointSize += mySizeAdjust;
+                };
+            };
+
+            if(Settings.doCharacters) {
+                if( (Math.abs(Settings.addCharSize[0]) + Math.abs(Settings.addCharSize[1])) > 0 ) {
+                    mySizeAdjust = randomInRange( Settings.addCharSize[0], Settings.addCharSize[1] );
+                    myText.pointSize += mySizeAdjust;
+                };
             };
 
             if(Settings.resetBaseline){
-                if(mySizeAdjust != 0) {
-                    myText.baselineShift -= mySizeAdjust/2;
-                } else {
-                    myText.baselineShift = 0;
-                };
-            } else {
-                if(mySizeAdjust != 0 && Settings.v_center) {
-                    myText.baselineShift -= mySizeAdjust/2;
-                };
+                myText.baselineShift = 0;
+            };
+            if(Settings.v_center && mySizeAdjust != 0) {
+                myText.baselineShift -= mySizeAdjust * 0.25; // Works OK with general x-height variable
+                // We can calculate this properly by getting x-height from font see: ParagraphStyle_GetSet_xHeight.jsx
             };
 
             if(Settings.useColor){
@@ -288,10 +334,10 @@ function setText( mySection, Settings ){
                 };
             };
 
-        }catch(r){
-            alert(r.description);
+        } catch( error ) {
+            alert( error + " (Line " + error.line + " in file " + error.fileName + ")");
             break;
-        }
+        };
     }
 }
 
