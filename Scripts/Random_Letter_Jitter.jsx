@@ -8,8 +8,9 @@
     This script sets every character between two values
 
     NOTES:
-    1. Add presets
-    2. Add separate color Characters/Words option
+    1. Add save/load presets
+    2. Add randomised baseline offset
+    3. Add separate color Characters/Words option
 
 */
 
