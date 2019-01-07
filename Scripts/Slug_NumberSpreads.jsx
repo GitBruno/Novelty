@@ -9,8 +9,9 @@
 var keyValue = "spreadNumberScriptLabel";
 
 var Settings = {
-    pointSize : 60,
-    offset : {y:0,x:0}
+    pointSize  : 60,
+    offset     : {y:0,x:0},
+    startIndex : 1
 };
 
 function removeLabeledItems( DocPageOrSpread, labelKey, labelValue ) {
@@ -59,9 +60,10 @@ function main(){
     // Remove any existing numbers
     Settings.offset.x -= Doc.documentPreferences.documentBleedOutsideOrRightOffset;
     removeLabeledItems( Doc, keyValue, keyValue );
-    var i, count = Doc.spreads.length;
-    for( i = 0; i < count; i++ ) {
-        placeSpreadNumber( i+1, Doc.spreads[i] );
+    var count = Doc.spreads.length;
+    var counter = Settings.startIndex;
+    for( var i = 0; i < count; i++ ) {
+        placeSpreadNumber( counter+i, Doc.spreads[i] );
     };
 };
 
