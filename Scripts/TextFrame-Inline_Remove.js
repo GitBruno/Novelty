@@ -31,6 +31,7 @@ function main() {
             case "Text":
             case "TextStyleRange":
             case "TextColumn":
+            case "Paragraph":
                 app.selection[0].textFrames;
                 break;
             case "TextFrame":
